@@ -1,0 +1,136 @@
+.App {
+  position: absolute;
+  bottom: 0;
+  width: 90vw;
+  padding-left: 2.5vw;
+  padding-right: 2.5vw;
+  max-height: 95%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-bottom: 5vh;
+}
+#chat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: none;
+  width: 100%;
+}
+#messageList {
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 100%;
+  padding-right: 5%;
+  float: right;
+
+  display: flex;
+  flex-direction: column-reverse;
+
+}
+
+.message-user {
+  background-color: #ebebeb;
+  display: flex;
+  flex-direction: row-reverse;
+  text-align: right;
+  margin-bottom: 1vh;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px #bebebe;
+  padding: 10px;
+}
+
+#messageList :first-child {
+  margin-bottom: 0;
+}
+
+.message-box {
+  width: 100%;
+}
+
+.message-maya {
+  background-color: #b2bec3;
+  display: flex;
+  flex-direction: row;
+  text-align: left;
+  margin-bottom: 1vh;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px #bebebe;
+  padding: 10px;
+}
+
+.message-info {
+  font-weight: bold;
+  padding: 5px;
+}
+
+.message-text {
+  padding: 5px;
+  text-wrap: wrap;
+}
+
+.message-audio {
+  padding: 5px;
+}
+
+audio {
+  max-width: 80%;
+}
+
+#messageInput {
+  width: 100%;
+  margin-top: 1vh;
+  height: 10vh;
+}
+
+#messageInputArea {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+#messageInputArea * {
+  border: none;
+}
+
+.inputLeft {
+  width: 70%;
+}
+
+.inputRight {
+  width: 25%;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+#messageType {
+  width: 100%;
+  height: 100%;
+  background: #ebebeb;
+  resize: none;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px #bebebe;
+  padding: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+.audio-recorder {
+  height: 45%;
+  width: 100%;
+  justify-content: center;
+}
+
+#textSend {
+  background: #b2bec3;
+  font-weight: bold;
+  color:#fff;
+  height: 45%;
+  margin-top: auto;
+  width: 100%;
+  justify-content: center;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px #bebebe;
+}
