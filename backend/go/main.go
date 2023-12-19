@@ -11,7 +11,9 @@ func textHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main () {
-  http.HandleFunc("/text", textHandler)
+  http.HandleFunc("/audio_query", textHandler)
+
+  // Form w/ Audio -> Text -> an AI response 
 
   fmt.Println("Server is running on :8080")
   http.ListenAndServe(":8080", nil)
