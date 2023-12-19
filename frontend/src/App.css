@@ -30,13 +30,13 @@
 }
 
 .message-user {
-  background-color: #ebebeb;
+  background-color: #FFD1DC;
   display: flex;
   flex-direction: row-reverse;
   text-align: right;
   margin-bottom: 1vh;
   border-radius: 20px;
-  box-shadow: 0 2px 5px #bebebe;
+  box-shadow: 0 2px 5px #FFC0CB;
   padding: 10px;
 }
 
@@ -49,13 +49,13 @@
 }
 
 .message-maya {
-  background-color: #b2bec3;
+  background-color: #AEEEEE;
   display: flex;
   flex-direction: row;
   text-align: left;
   margin-bottom: 1vh;
   border-radius: 20px;
-  box-shadow: 0 2px 5px #bebebe;
+  box-shadow: 0 2px 5px #FFC0CB;
   padding: 10px;
 }
 
@@ -107,10 +107,10 @@ audio {
 #messageType {
   width: 100%;
   height: 100%;
-  background: #ebebeb;
+  background: #FFD1DC;
   resize: none;
   border-radius: 20px;
-  box-shadow: 0 2px 5px #bebebe;
+  box-shadow: 0 2px 5px #FFC0CB;
   padding: 10px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -124,13 +124,13 @@ audio {
 }
 
 #textSend {
-  background: #b2bec3;
+  background: #AEEEEE;
   font-weight: bold;
-  color:#fff;
+  color:#B19CD9;
   height: 45%;
   margin-top: auto;
   width: 100%;
   justify-content: center;
   border-radius: 20px;
-  box-shadow: 0 2px 5px #bebebe;
+  box-shadow: 0 2px 5px #FFC0CB;
 }
