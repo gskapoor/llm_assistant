@@ -2,10 +2,9 @@ from dotenv import load_dotenv
 import asyncio
 import time
 load_dotenv()
-
-
-#from openai import OpenAI
 from openai import AsyncOpenAI
+
+wait_time = 3 # the time to wait between checking whether the LLM's response is complete
 client = AsyncOpenAI()
 
 async def initialize_conversation():
@@ -17,7 +16,7 @@ async def initialize_conversation():
 
   thread = await client.beta.threads.create()
 
-  return (assistant, thread)
+  return assistant, thread
 
 
 
@@ -34,7 +33,9 @@ async def continue_conversation(assistant, thread, next_message):
     assistant_id=assistant.id
   )
 
-  while True:
+  num_waits = 0
+
+  while num_waits < 100:
     run = await client.beta.threads.runs.retrieve(
       thread_id=thread.id,
       run_id=run.id
@@ -53,7 +54,8 @@ async def continue_conversation(assistant, thread, next_message):
       case "completed":
         break
       case _:
-        time.sleep(3) # Note that 3 is arbitrary
+        num_waits += 1
+        time.sleep(wait_time)
 
   messages = await client.beta.threads.messages.list(
     thread_id=thread.id
@@ -65,14 +67,14 @@ async def continue_conversation(assistant, thread, next_message):
 
 async def start_conversation(initial_message):
 
-  (assistant, thread) = await initialize_conversation()
+  assistant, thread = await initialize_conversation()
 
   messages = await continue_conversation(assistant, thread, initial_message)
 
-  return (assistant, thread, messages)
+  return assistant, thread, messages
 
 async def main() -> None:
-  (assistant, thread, my_conversation) = await start_conversation("Hi! What is 2 + 2?")
+  assistant, thread, my_conversation = await start_conversation("Hi! What is 2 + 2?")
   myer_conversation = await continue_conversation(assistant, thread, "What are the colors of the rainbow? Nothing else after that.")
   print(myer_conversation)
 
