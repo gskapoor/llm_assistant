@@ -5,7 +5,7 @@ import (
   "net/http"
   "github.com/gorilla/mux"
   "github.com/gskapoor/llm_assistant/backend/go/handlers"
-  "github.com/gskapoor/llm_assistant/backend/go/lib"
+  "github.com/gskapoor/llm_assistant/backend/go/shared"
 )
 
 func textHandler(w http.ResponseWriter, r *http.Request) {
