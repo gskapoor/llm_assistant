@@ -1,36 +1,33 @@
 package middleware
 
 import (
-  "log"
-  "time"
-  "net/http"
+	"log"
+	"net/http"
+	"time"
 )
 
 type Middleware func(http.HandlerFunc) http.HandlerFunc
 
 func Logging() Middleware {
-  return func(next http.HandlerFunc) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-     
-      start := time.Now() 
+	return func(next http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
 
-      defer func() { log.Println(r.URL.Path, time.Since(start) ) }()
+			start := time.Now()
 
-      next(w, r)
+			defer func() { log.Println(r.URL.Path, time.Since(start)) }()
 
-    }
-  }
+			next(w, r)
+
+		}
+	}
 }
 
 func Chain(f http.HandlerFunc, middlewares ...Middleware) http.HandlerFunc {
 
-  for _, m := range middlewares {
-    f = m(f)
-  }
+	for _, m := range middlewares {
+		f = m(f)
+	}
 
-  return f
+	return f
 
 }
-
-
-
