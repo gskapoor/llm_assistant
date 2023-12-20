@@ -3,6 +3,9 @@ package main
 import (
   "fmt"
   "net/http"
+  "github.com/gorilla/mux"
+  "github.com/gskapoor/llm_assistant/backend/go/handlers"
+  "github.com/gskapoor/llm_assistant/backend/go/lib"
 )
 
 func textHandler(w http.ResponseWriter, r *http.Request) {
@@ -11,10 +14,17 @@ func textHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main () {
-  http.HandleFunc("/audio_query", textHandler)
+
+  r := mux.NewRouter()
+
+  r.HandleFunc("/voice", middleware.Logging()(handlers.HandleVoiceInput) )
+  r.HandleFunc("/text", middleware.Logging()(handlers.HandleTextInput) )
 
   // Form w/ Audio -> Text -> an AI response 
 
   fmt.Println("Server is running on :8080")
-  http.ListenAndServe(":8080", nil)
+  err := http.ListenAndServe(":8080", r)
+  if err != nil {
+    fmt.Println(err)
+  }
 }
