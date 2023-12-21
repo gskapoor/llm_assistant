@@ -9,11 +9,6 @@ import (
 	midw "github.com/gskapoor/llm_assistant/backend/go/shared"
 )
 
-func textHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain")
-	fmt.Fprint(w, "BOTTOM TEXT\n")
-}
-
 func main() {
 
 	r := mux.NewRouter()
