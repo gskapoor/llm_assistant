@@ -18,9 +18,11 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/voice", middleware.LoggingStart()(handlers.HandleVoiceInput))
-	r.HandleFunc("/text", middleware.LoggingStart()(handlers.HandleTextInput))
+	//r.HandleFunc("/voice", middleware.LoggingStart()(handlers.HandleVoiceInput))
+	//r.HandleFunc("/text", middleware.LoggingStart()(handlers.HandleTextInput))
 
+	r.HandleFunc("/text", middleware.Chain(handlers.HandleTextInput, middleware.LoggingStart(), middleware.Logging()))
+	r.HandleFunc("/voice", middleware.Chain(handlers.HandleVoiceInput, middleware.LoggingStart(), middleware.Logging()))
 	// Form w/ Audio -> Text -> an AI response
 
 	fmt.Println("Server is running on :8080")

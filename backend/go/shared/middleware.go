@@ -25,8 +25,11 @@ func Logging() Middleware {
 func LoggingStart() Middleware {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
+
 			log.Println("start time", r.URL.Path)
+
 			next(w, r)
+
 		}
 	}
 }
