@@ -5,9 +5,8 @@ import time
 load_dotenv()
 from openai import AsyncOpenAI
 
-wait_time = (
-  3  # the time to wait between checking whether the LLM's response is complete
-)
+WAIT_TIME = 3 # the time to wait between checking whether the LLM's response is complete
+MAX_NUM_WAITS = 1000 # sets wait time for timeout from waiting on model response
 client = AsyncOpenAI()
 
 
@@ -34,7 +33,7 @@ async def continue_conversation(assistant, thread, next_message):
 
   num_waits = 0
 
-  while num_waits < 100:
+  while num_waits < MAX_NUM_WAITS:
     run = await client.beta.threads.runs.retrieve(
       thread_id=thread.id, run_id=run.id
     )
@@ -55,7 +54,7 @@ async def continue_conversation(assistant, thread, next_message):
         break
       case _:
         num_waits += 1
-        time.sleep(wait_time)
+        time.sleep(WAIT_TIME)
 
   messages = await client.beta.threads.messages.list(thread_id=thread.id)
 
@@ -70,20 +69,6 @@ async def start_conversation(initial_message):
   return assistant, thread, messages
 
 async def end_conversation(assistant, thread):
-  await client.beta.threads.delete(thread.id)
-  await client.beta.assistants.delete(assistant_id=assistant.id)
-
-
-async def main() -> None:
-  assistant, thread, my_conversation = await start_conversation("Hi! What is 2 + 2?")
-  myer_conversation = await continue_conversation(
-    assistant,
-    thread,
-    "What are the colors of the rainbow? Nothing else after that.",
-  )
-  print(myer_conversation)
-  await end_conversation(assistant, thread)
-  print("done")
-
-
-asyncio.run(main())
+  thread_deleted = await client.beta.threads.delete(thread.id)
+  assistant_deleted = await client.beta.assistants.delete(assistant_id=assistant.id)
+  return thread_deleted.deleted and assistant_deleted.deleted
