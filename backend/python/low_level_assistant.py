@@ -1,6 +1,11 @@
 from dotenv import load_dotenv
 import asyncio
 import time
+from pydantic import BaseModel
+
+class AssistantSession(BaseModel):
+    assistant_id: str
+    thread_id: str
 
 load_dotenv()
 from openai import AsyncOpenAI
@@ -11,31 +16,36 @@ client = AsyncOpenAI()
 
 
 async def initialize_conversation():
-  assistant = await client.beta.assistants.create(
+  assistantId = await client.beta.assistants.create(
     name="Personal Assistant",
     instructions="You are a personal assistant whose role is to help the user complete their tasks and to entertaing the user via conversation.",
     model="gpt-3.5-turbo-1106",
   )
 
-  thread = await client.beta.threads.create()
+  threadId = await client.beta.threads.create()
 
-  return assistant, thread
+  new_assistant = AssistantSession(assistant_id=assistantId.id,thread_id=threadId.id)
+
+  return new_assistant
 
 
-async def continue_conversation(assistant, thread, next_message):
-  message = await client.beta.threads.messages.create(
-    thread_id=thread.id, role="user", content=next_message
+async def continue_conversation(current_assistant, next_message):
+  threadId = current_assistant.thread_id
+  assistantId = current_assistant.assistant_id
+
+  await client.beta.threads.messages.create(
+    thread_id=threadId, role="user", content=next_message
   )
 
   run = await client.beta.threads.runs.create(
-    thread_id=thread.id, assistant_id=assistant.id
+    thread_id=threadId, assistant_id=assistantId
   )
 
   num_waits = 0
 
   while num_waits < MAX_NUM_WAITS:
     run = await client.beta.threads.runs.retrieve(
-      thread_id=thread.id, run_id=run.id
+      thread_id=threadId, run_id=run.id
     )
 
     match run.status:
@@ -56,19 +66,13 @@ async def continue_conversation(assistant, thread, next_message):
         num_waits += 1
         time.sleep(WAIT_TIME)
 
-  messages = await client.beta.threads.messages.list(thread_id=thread.id)
+  messages = await client.beta.threads.messages.list(thread_id=threadId)
+  response = messages.data[0].content[0].text.value
 
-  return messages.data[0].content[0].text.value
+  return response
 
 
-async def start_conversation(initial_message):
-  assistant, thread = await initialize_conversation()
-
-  messages = await continue_conversation(assistant, thread, initial_message)
-
-  return assistant, thread, messages
-
-async def end_conversation(assistant, thread):
-  thread_deleted = await client.beta.threads.delete(thread.id)
-  assistant_deleted = await client.beta.assistants.delete(assistant_id=assistant.id)
+async def end_conversation(assistant_to_delete):
+  thread_deleted = await client.beta.threads.delete(assistant_to_delete.thread_id)
+  assistant_deleted = await client.beta.assistants.delete(assistant_to_delete.assistant_id)
   return thread_deleted.deleted and assistant_deleted.deleted
