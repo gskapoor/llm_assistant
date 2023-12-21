@@ -9,12 +9,26 @@ function App() {
     initialMessages
   );
   const recorderControls = useAudioRecorder()
-  const handleAudioMessage = (blob) => {
+  async function handleAudioMessage(blob) {
     const url = URL.createObjectURL(blob);
     genMessage({author: "user", text: null, audio: url});
+    const data = new FormData();
+    data.append("audio", url);
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS"
+      },
+      credentials: "include",
+      body: data
+    };
+    const response = await fetch('http://localhost:8080', options);
+    console.log(response)
   };
 
-  function handleTextMessage(e) {
+  async function handleTextMessage(e) {
     e.preventDefault();
 
 
@@ -23,7 +37,6 @@ function App() {
     const formJson = Object.fromEntries(formData.entries());
 
     genMessage({author: "user", text: formJson.message, audio: null})
-    // call api to get response
     const responseJson = {message: "[insert API response here]"};
     genMessage({author: "maya", text: responseJson.message, audio: null})
 
