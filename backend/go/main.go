@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/gskapoor/llm_assistant/backend/go/handlers"
-	"github.com/gskapoor/llm_assistant/backend/go/shared"
-	"net/http"
+	middleware "github.com/gskapoor/llm_assistant/backend/go/shared"
 )
 
 func textHandler(w http.ResponseWriter, r *http.Request) {
@@ -17,8 +18,8 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/voice", middleware.Logging()(handlers.HandleVoiceInput))
-	r.HandleFunc("/text", middleware.Logging()(handlers.HandleTextInput))
+	r.HandleFunc("/voice", middleware.LoggingStart()(handlers.HandleVoiceInput))
+	r.HandleFunc("/text", middleware.LoggingStart()(handlers.HandleTextInput))
 
 	// Form w/ Audio -> Text -> an AI response
 
