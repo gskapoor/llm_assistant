@@ -5,32 +5,26 @@ import './App.css';
 const initialMessages = [{author: "maya", text: "Welcome to MAYA! How may I assist you today?"}];
 
 function App() {
-  const [messages, setMessages] = useState(
-    initialMessages
-  );
-  const recorderControls = useAudioRecorder()
+  const [messages, setMessages] = useState(initialMessages);
+  const recorderControls = useAudioRecorder();
+
   async function handleAudioMessage(blob) {
     const url = URL.createObjectURL(blob);
-    genMessage({author: "user", text: null, audio: url});
+    const audioFile = new File([blob], 'audio.mp3', { type: 'audio/mpeg' });
     const data = new FormData();
-    data.append("audio", url);
+    data.append("audio", audioFile);
     const options = {
       method: "POST",
-      headers: {
-        "Content-Type": "multipart/form-data",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS"
-      },
-      credentials: "include",
+      mode: "cors",
       body: data
     };
-    const response = await fetch('http://localhost:8080', options);
-    console.log(response)
+    const response = await fetch('http://localhost:8080/voice', options);
+    const responseText = await response.text();
+    genMessage({author: "user", text: responseText, audio: url});
   };
 
   async function handleTextMessage(e) {
     e.preventDefault();
-
 
     const form = e.target;
     const formData = new FormData(form);
@@ -85,6 +79,7 @@ function App() {
               <AudioRecorder 
               onRecordingComplete={(blob) => handleAudioMessage(blob)}
               recorderControls={recorderControls}
+              downloadFileExtension="mp3"
               />
               <button type="submit" id="textSend">Send</button>
             </div>

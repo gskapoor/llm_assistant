@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gskapoor/llm_assistant/backend/go/handlers"
 	midw "github.com/gskapoor/llm_assistant/backend/go/shared"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -18,7 +19,9 @@ func main() {
 
 	fmt.Println("Server is running on :8080")
 
-	err := http.ListenAndServe(":8080", r)
+	handler := cors.Default().Handler(r)
+
+	err := http.ListenAndServe(":8080", handler)
 	if err != nil {
 		fmt.Println(err)
 	}
