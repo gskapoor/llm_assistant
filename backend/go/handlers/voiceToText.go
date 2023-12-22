@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -13,25 +14,34 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
+// getOpenAIKey: Gets the environment variable OPENAI_API_KEY
 func getOpenAIKey() (string, error) {
-	err := godotenv.Load(".env")
+
+	const envLocation = ".env"
+	const envVarName = "OPENAI_API_KEY"
+
+	err := godotenv.Load(envLocation)
 	if err != nil {
 		log.Println("Error reading environment: ", err)
 		return "", err
 	}
 
-	key := os.Getenv("OPENAI_API_KEY")
+	key := os.Getenv(envVarName)
 
 	return key, nil
 }
 
-func makeSession(audioPath string) (string, error) {
+// transcribe: Turns an audio file, at a given path, into text
+// audioPath (string): The path to the audio file
+func transcribe(audioPath string) (string, error) {
 
 	token, err := getOpenAIKey()
 	if err != nil {
 		return "", err
 	}
 
+	// TODO: Understand this code and write something explaining it
+	// This is basically just boilerplate given by the "openai" library
 	trClient := openai.NewClient(token)
 	ctx := context.Background()
 
@@ -42,7 +52,7 @@ func makeSession(audioPath string) (string, error) {
 
 	resp, err := trClient.CreateTranscription(ctx, req)
 	if err != nil {
-		log.Printf("Error getting transcription", err)
+		log.Printf("Error getting transcription: %v", err)
 		return "", err
 	}
 
@@ -52,16 +62,35 @@ func makeSession(audioPath string) (string, error) {
 // deleteFile: Deletes file at a given path
 // filePath (string): The path to the file
 func deleteFile(filePath string) {
+
 	err := os.Remove(filePath)
 	if err != nil {
 		log.Printf("Failed to delete the file: %v", err)
 	}
 }
 
+// createTempDirectory: Creates a temporary directory at a given path
+// filePath (string): The path to the file
 func createTempDirectory(filePath string) error {
+
+	// These are UNIX, representing an octal number
+	// Read here for reference: https://en.wikipedia.org/wiki/File-system_permissions#Numeric_notation
 	const permissions = 0700
-	var err error = os.MkdirAll(filePath, permissions)
+
+	err := os.MkdirAll(filePath, permissions)
 	return err
+}
+
+// textToAI: Takes a transcribed message and outputs an AI response
+func textToAI(message string) (string, error) {
+
+	// TODO: Implement this with text endpoint
+	_, err := http.NewRequest("POST", "localhost:8000/text", bytes.NewBufferString(message))
+	if err != nil {
+		return "", err
+	}
+
+	return "", nil
 }
 
 // HandleVoiceInput: a HTTP handler for Speech to Text
@@ -69,19 +98,13 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseMultipartForm(20 << 20)
 
-	log.Println("Recieved form")
-
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
 		return
 	}
 
-	log.Println("Parsed form")
-
 	file, _, err := r.FormFile("audio")
 	defer file.Close()
-
-	log.Println("Opened Audio File")
 
 	createTempDirectory("uploads")
 
@@ -98,8 +121,6 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 	defer deleteFile(audioFilePath)
 	defer out.Close()
 
-	log.Println("Created File")
-
 	_, err = io.Copy(out, file)
 	if err != nil {
 		log.Println("Failed to save audio file", err)
@@ -107,13 +128,15 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("Copied File")
+	transcribedText, err := transcribe(audioFilePath)
 
-	transcribedText, err := makeSession(audioFilePath)
+	if err != nil {
+		log.Println("ERROR")
+	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(transcribedText))
 
-	log.Println("Sent to API")
+	// TODO: Send a response from the text endpoint
 
 }
