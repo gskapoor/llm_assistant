@@ -34,6 +34,7 @@ function App() {
     const formJson = Object.fromEntries(formData.entries());
 
     genMessage({author: "user", text: formJson.message, audio: null})
+    formRef.current.reset();
     const responseJson = {message: "[insert API response here]"};
     genMessage({author: "maya", text: responseJson.message, audio: null})
 
