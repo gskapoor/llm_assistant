@@ -10,15 +10,15 @@ async def read_root():
 
 @app.post("/assistant")
 async def init():
-    new_assistant = initialize_conversation()
+    new_assistant = await initialize_conversation()
     return {"assistant_session": new_assistant}
 
 @app.get("/assistant")
 async def cont(assistant: AssistantSession, message: str):
-    response = continue_conversation(assistant, message)
+    response = await continue_conversation(assistant, message)
     return {"response": response}
 
 @app.delete("/assistant")
 async def end(assistant: AssistantSession):
-    deleted_status = end_conversation(assistant)
+    deleted_status = await end_conversation(assistant)
     return {"status": deleted_status}
