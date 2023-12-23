@@ -5,7 +5,7 @@ from openai import AsyncOpenAI
 from pydantic import BaseModel
 
 class AssistantSession(BaseModel):
-  """
+  """what is this class for
   """
   assistant_id: str
   thread_id: str

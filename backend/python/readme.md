@@ -9,3 +9,9 @@ which pip # make sure it output the pip points to your virtual environment
 pip install -r requirements.txt
 ```
 
+## Start the server
+
+```
+uvicorn main:app --reload
+```
+
