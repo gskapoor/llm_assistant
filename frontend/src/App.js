@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder';
 import './App.css';
 
 const initialMessages = [{author: "maya", text: "Welcome to MAYA! How may I assist you today?"}];
 
 function App() {
-  const [messages, setMessages] = useState(
-    initialMessages
-  );
-  const recorderControls = useAudioRecorder()
+  const [messages, setMessages] = useState(initialMessages);
+  const [theme, setTheme] = useState("grayscale");
+  const recorderControls = useAudioRecorder();
+  const [modal, setModal] = useState(null);
+  const formRef = useRef(null);
+
   const handleAudioMessage = (blob) => {
     const url = URL.createObjectURL(blob);
     genMessage({author: "user", text: null, audio: url});
@@ -29,15 +31,31 @@ function App() {
 
   }
 
+  function handleEnter(e) {
+    if(e.keyCode === 13 && e.shiftKey === false) {
+      e.preventDefault();
+      formRef.current.requestSubmit();
+    }
+  }
+
   function genMessage(data) {
     setMessages(messages => [{author: data.author, text: data.text, audio: data.audio}, ...messages]);
   }
+
+  function toggleModal(mode) {
+    if (mode === modal && modal != null) {
+      setModal(null)
+    }
+    else {
+      setModal(mode);
+    }
+  };
 
   function MessageList({messages}) {
     return (
       <div id="messageList">
         {messages.map(message => (
-          <div className={"message-" + message.author}>
+          <div className={"message " + message.author}>
             <div className="message-box">
               <div className="message-info">
                 {message.author}
@@ -59,14 +77,58 @@ function App() {
     );
   }
 
+  function Navbar() {
+    return (
+      <nav id="navId">
+        <button onClick={() => toggleModal("account")}>Account</button>
+        <button onClick={() => toggleModal("theme")}>Theme</button>
+      </nav>
+    );
+  };
+
+  function Modal() {
+    return (
+      <div className="modal">
+          <div onClick={() => toggleModal(null)} className="overlay"></div>
+          {modal === "theme" &&
+          <div className="modal-content"> 
+            <h2>Theme</h2>
+            <select value={theme} onChange={e => setTheme(e.target.value)}>
+              <option value="grayscale">Grayscale</option>
+              <option value="kawaii">Kawaii</option>
+            </select>
+            <button className="close-modal" onClick={() => toggleModal(null)}>CLOSE</button>
+          </div>
+          }
+          {modal === "account" &&
+          <div className="modal-content"> 
+            <h2>Account</h2>
+            <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident
+            perferendis suscipit officia recusandae, eveniet quaerat assumenda
+            id fugit, dignissimos maxime non natus placeat illo iusto!
+            Sapiente dolorum id maiores dolores? Illum pariatur possimus
+            quaerat ipsum quos molestiae rem aspernatur dicta tenetur. Sunt
+            placeat tempora vitae enim incidunt porro fuga ea.
+            </p>
+            <button className="close-modal" onClick={() => toggleModal(null)}>CLOSE</button>
+          </div>
+          }
+      </div>
+    );
+  }
+
   return (
-    <div className="App">
+    <div className={"App " + theme}>
+      {modal && 
+        <Modal />
+      }
       <div id="chat">
         <MessageList messages={messages} />
         <div id="messageInput">
-          <form id="messageInputArea" onSubmit={handleTextMessage}>
+          <form id="messageInputArea" onSubmit={handleTextMessage} ref={formRef}>
             <div className="inputLeft">
-              <textarea name="message" type="text" id="messageType" placeholder="Enter message"></textarea>
+              <textarea name="message" type="text" id="messageType" placeholder="Enter message" onKeyDown={handleEnter}></textarea>
             </div>
             <div className="inputRight">
               <AudioRecorder 
@@ -78,6 +140,7 @@ function App() {
           </form>
         </div>
       </div>
+      <Navbar />
     </div>
   );
 }

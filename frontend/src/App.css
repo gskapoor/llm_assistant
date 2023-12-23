@@ -1,3 +1,4 @@
+/*overall layout + theme*/
 .App {
   position: absolute;
   bottom: 0;
@@ -8,14 +9,31 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  margin-bottom: 5vh;
 }
+.App.grayscale {
+  --color-primary: #ebebeb;
+  --color-secondary: #b2bec3;
+  --color-accent-1: #bebebe;
+  --color-accent-2: #ebebeb;
+  --color-text-primary: #000000; /*black/white or other dark/light for these*/
+  --color-text-secondary: #ffffff;
+}
+.App.kawaii {
+  --color-primary: #FFD1DC;
+  --color-secondary: #AEEEEE;
+  --color-accent-1: #FFC0CB;
+  --color-accent-2: #ebebeb;
+  --color-text-primary: #000000; /*black/white or other dark/light for these*/
+  --color-text-secondary: #ffffff;
+}
+/*message list layout*/
 #chat {
   display: flex;
   flex-direction: column;
   justify-content: center;
   border: none;
   width: 100%;
+  margin-bottom: 2vh;
 }
 #messageList {
   max-height: 80vh;
@@ -28,109 +46,157 @@
   flex-direction: column-reverse;
 
 }
-
-.message-user {
-  background-color: #ebebeb;
+.message {
   display: flex;
-  flex-direction: row-reverse;
-  text-align: right;
   margin-bottom: 1vh;
   border-radius: 20px;
-  box-shadow: 0 2px 5px #bebebe;
+  box-shadow: 0 2px 5px var(--color-accent-1);
   padding: 10px;
+  color: var(--color-text-primary);
 }
-
 #messageList :first-child {
   margin-bottom: 0;
 }
-
 .message-box {
   width: 100%;
 }
-
-.message-maya {
-  background-color: #b2bec3;
-  display: flex;
+.message.maya {
+  background-color: var(--color-secondary);
   flex-direction: row;
   text-align: left;
-  margin-bottom: 1vh;
-  border-radius: 20px;
-  box-shadow: 0 2px 5px #bebebe;
-  padding: 10px;
 }
-
+.message.user {
+  background-color: var(--color-primary);
+  flex-direction: row-reverse;
+  text-align: right;
+}
 .message-info {
   font-weight: bold;
-  padding: 5px;
+  padding: 5px 7px;
 }
-
 .message-text {
-  padding: 5px;
+  padding: 5px 7px;
   text-wrap: wrap;
 }
-
 .message-audio {
-  padding: 5px;
+  padding: 5px 7px;
 }
-
 audio {
   max-width: 80%;
 }
-
+/*message input layout*/
 #messageInput {
   width: 100%;
   margin-top: 1vh;
   height: 10vh;
 }
-
 #messageInputArea {
   display: flex;
   flex-direction: row;
   height: 100%;
 }
-
 #messageInputArea * {
   border: none;
 }
-
 .inputLeft {
   width: 70%;
 }
-
 .inputRight {
   width: 25%;
   margin-left: auto;
   display: flex;
   flex-direction: column;
 }
-
 #messageType {
   width: 100%;
   height: 100%;
-  background: #ebebeb;
+  background: var(--color-primary);
   resize: none;
   border-radius: 20px;
-  box-shadow: 0 2px 5px #bebebe;
-  padding: 10px;
+  box-shadow: 0 2px 5px var(--color-accent-1);
+  padding-top: 10px;
+  padding-left: 10px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
 }
-
 .audio-recorder {
   height: 45%;
   width: 100%;
   justify-content: center;
 }
-
 #textSend {
-  background: #b2bec3;
+  background: var(--color-secondary);
   font-weight: bold;
-  color:#fff;
+  color: var(--color-text-primary);
   height: 45%;
   margin-top: auto;
   width: 100%;
   justify-content: center;
   border-radius: 20px;
-  box-shadow: 0 2px 5px #bebebe;
+  box-shadow: 0 2px 5px var(--color-accent-1);
+}
+/*settings layout*/
+#navId {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 2vh;
+}
+#navId button {
+  width: 48%;
+  border: none;
+  background: var(--color-accent-2);
+  border-radius: 20px;
+  padding: 10px 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+.btn-modal {
+  padding: 10px 20px;
+  display: block;
+  margin: 100px auto 0;
+  font-size: 18px;
+}
+.modal, .overlay {
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: fixed;
+}
+.overlay {
+  background: rgba(49,49,49,0.8);
+}
+.modal-content {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  line-height: 1.4;
+  background: var(--color-accent-2);
+  padding: 14px 28px;
+  border-radius: 3px;
+  max-width: 600px;
+  min-width: 300px;
+  border-radius: 20px;
+}
+.modal-content select {
+  border: none;
+  border-radius: 20px;
+  padding: 5px 7px;
+  background: var(--color-accent-1);
+}
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 7px;
+  border-radius: 20px;
+  border: none;
+  background: var(--color-accent-1)
 }
