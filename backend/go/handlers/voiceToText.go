@@ -96,8 +96,10 @@ func textToAI(message string) (string, error) {
 // HandleVoiceInput: a HTTP handler for Speech to Text
 func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 
-	err := r.ParseMultipartForm(20 << 20)
+	const storageDir = "uploads"
 
+	// File size is 20 megabytes, so 20 << 20 bytes
+	err := r.ParseMultipartForm(20 << 20)
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
 		return
@@ -106,11 +108,15 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 	file, _, err := r.FormFile("audio")
 	defer file.Close()
 
-	createTempDirectory("uploads")
+	err = createTempDirectory(storageDir)
+	if err != nil {
+		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		return
+	}
 
 	timestamp := time.Now().UnixNano()
 
-	audioFilePath := fmt.Sprintf("uploads/audiofile_%d.wav", timestamp)
+	audioFilePath := fmt.Sprintf(storageDir+"/audiofile_%d.wav", timestamp)
 
 	out, err := os.Create(audioFilePath)
 	if err != nil {
