@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-# test session
+# Implements the functions in assistant.py as an API
 @app.get("/")
 async def read_root():
     return {"Hello": "World"}
