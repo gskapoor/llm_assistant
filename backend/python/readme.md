@@ -26,3 +26,9 @@ Make sure import the virtual environment and then start the server with
 uvicorn main:app --reload
 ```
 
+## Read doc and try API
+
+Open the link `http://localhost:8000/docs` in the browser and read the doc try the API by clicking "Try it out". 
+
+No need curl or httpie, yay!
+
