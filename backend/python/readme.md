@@ -9,7 +9,7 @@ which pip # make sure it output the pip points to your virtual environment
 pip install -r requirements.txt
 ```
 
-On Windows, please use pwsh 7, and install python, then
+On Windows, please use pwsh 7+, and install python, then
 
 ```ps1
 python -m venv .venv
