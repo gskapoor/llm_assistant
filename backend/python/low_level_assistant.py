@@ -1,30 +1,33 @@
-from dotenv import load_dotenv
 import asyncio
 import time
+from dotenv import load_dotenv
+from openai import AsyncOpenAI
 from pydantic import BaseModel
 
 class AssistantSession(BaseModel):
-    assistant_id: str
-    thread_id: str
+  """
+  """
+  assistant_id: str
+  thread_id: str
+
+WAIT_TIME = 3 # (seconds) the time to wait between checking whether the LLM's response is complete
+MAX_NUM_WAITS = 1000 # sets wait time for timeout from waiting on model response
 
 load_dotenv()
-from openai import AsyncOpenAI
-
-WAIT_TIME = 3 # the time to wait between checking whether the LLM's response is complete
-MAX_NUM_WAITS = 1000 # sets wait time for timeout from waiting on model response
 client = AsyncOpenAI()
 
-
 async def initialize_conversation():
-  assistantId = await client.beta.assistants.create(
+  """TODO: write doc here
+  """
+  assistant = await client.beta.assistants.create(
     name="Personal Assistant",
     instructions="You are a personal assistant whose role is to help the user complete their tasks and to entertaing the user via conversation.",
     model="gpt-3.5-turbo-1106",
   )
 
-  threadId = await client.beta.threads.create()
+  thread = await client.beta.threads.create()
 
-  new_assistant = AssistantSession(assistant_id=assistantId.id,thread_id=threadId.id)
+  new_assistant = AssistantSession(assistant_id=assistant.id,thread_id=thread.id)
 
   return new_assistant
 
@@ -75,4 +78,5 @@ async def continue_conversation(current_assistant, next_message):
 async def end_conversation(assistant_to_delete):
   thread_deleted = await client.beta.threads.delete(assistant_to_delete.thread_id)
   assistant_deleted = await client.beta.assistants.delete(assistant_to_delete.assistant_id)
+
   return thread_deleted.deleted and assistant_deleted.deleted
