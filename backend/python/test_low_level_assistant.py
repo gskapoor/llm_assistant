@@ -1,6 +1,6 @@
 import unittest
 import asyncio
-from ..low_level_assistant import initialize_conversation, continue_conversation, end_conversation, AssistantSession
+from assistant import initialize_conversation, continue_conversation, end_conversation, AssistantSession
 
 class TestAssistant(unittest.IsolatedAsyncioTestCase):
 
