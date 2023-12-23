@@ -143,7 +143,6 @@ function App() {
               <AudioRecorder 
               onRecordingComplete={(blob) => handleAudioMessage(blob)}
               recorderControls={recorderControls}
-              downloadFileExtension="mp3"
               />
               <button type="submit" id="textSend">Send</button>
             </div>
