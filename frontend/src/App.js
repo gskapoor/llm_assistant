@@ -11,21 +11,29 @@ function App() {
   const [modal, setModal] = useState(null);
   const formRef = useRef(null);
 
-  const handleAudioMessage = (blob) => {
+  async function handleAudioMessage(blob) {
     const url = URL.createObjectURL(blob);
-    genMessage({author: "user", text: null, audio: url});
+    const audioFile = new File([blob], 'audio.mp3', { type: 'audio/mpeg' });
+    const data = new FormData();
+    data.append("audio", audioFile);
+    const options = {
+      method: "POST",
+      mode: "cors",
+      body: data
+    };
+    const response = await fetch('http://localhost:8080/voice', options);
+    const responseText = await response.text();
+    genMessage({author: "user", text: responseText, audio: url});
   };
 
-  function handleTextMessage(e) {
+  async function handleTextMessage(e) {
     e.preventDefault();
-
 
     const form = e.target;
     const formData = new FormData(form);
     const formJson = Object.fromEntries(formData.entries());
 
     genMessage({author: "user", text: formJson.message, audio: null})
-    // call api to get response
     const responseJson = {message: "[insert API response here]"};
     genMessage({author: "maya", text: responseJson.message, audio: null})
 
@@ -134,6 +142,7 @@ function App() {
               <AudioRecorder 
               onRecordingComplete={(blob) => handleAudioMessage(blob)}
               recorderControls={recorderControls}
+              downloadFileExtension="mp3"
               />
               <button type="submit" id="textSend">Send</button>
             </div>
