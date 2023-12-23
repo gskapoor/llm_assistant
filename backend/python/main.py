@@ -8,12 +8,12 @@ app = FastAPI()
 async def read_root():
     return {"Hello": "World"}
 
-@app.post("/assistant")
+@app.get("/assistant")
 async def init():
     new_assistant = await initialize_conversation()
     return {"assistant_session": new_assistant}
 
-@app.get("/assistant")
+@app.post("/assistant")
 async def cont(assistant: AssistantSession, message: str):
     response = await continue_conversation(assistant, message)
     return {"response": response}
