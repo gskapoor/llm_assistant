@@ -23,7 +23,7 @@ class AssistantSession(BaseModel):
 
 class AssistantSessionMessage(AssistantSession):
   """
-  A class containing a session with a messsage, inherited from AssistantSession
+  A class containing a session with a message, inherited from AssistantSession
   
   Extra Attributes
   ----------
