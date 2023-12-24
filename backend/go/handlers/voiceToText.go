@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -81,23 +80,14 @@ func createTempDirectory(filePath string) error {
 	return err
 }
 
-// textToAI: Takes a transcribed message and outputs an AI response
-func textToAI(message string) (string, error) {
-
-	// TODO: Implement this with text endpoint
-	_, err := http.NewRequest("POST", "localhost:8000/text", bytes.NewBufferString(message))
-	if err != nil {
-		return "", err
-	}
-
-	return "", nil
-}
 
 // HandleVoiceInput: a HTTP handler for Speech to Text
 func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 
-	err := r.ParseMultipartForm(20 << 20)
+	const storageDir = "uploads"
 
+	// File size is 20 megabytes, so 20 << 20 bytes
+	err := r.ParseMultipartForm(20 << 20)
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
 		return
@@ -106,11 +96,15 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 	file, _, err := r.FormFile("audio")
 	defer file.Close()
 
-	createTempDirectory("uploads")
+	err = createTempDirectory(storageDir)
+	if err != nil {
+		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		return
+	}
 
 	timestamp := time.Now().UnixNano()
 
-	audioFilePath := fmt.Sprintf("uploads/audiofile_%d.wav", timestamp)
+	audioFilePath := fmt.Sprintf(storageDir+"/audiofile_%d.wav", timestamp)
 
 	out, err := os.Create(audioFilePath)
 	if err != nil {
@@ -138,5 +132,7 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(transcribedText))
 
 	// TODO: Send a response from the text endpoint
+
+	// textToAI("text")
 
 }
