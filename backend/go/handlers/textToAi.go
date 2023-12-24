@@ -134,7 +134,15 @@ func assistantKill(session AssistantSession, url string) error {
 		return err
 	}
 
-	_, err = http.NewRequest("DELETE", url, bytes.NewBuffer(jsonSession))
+	req, err := http.NewRequest("DELETE", url, bytes.NewBuffer(jsonSession))
+	if err != nil {
+		log.Printf("Error creating request: %v", err)
+		return err
+	}
+
+	client := &http.Client{}
+
+	_, err = client.Do(req)
 	if err != nil {
 		log.Printf("Error deleting session: %v", err)
 		return err
@@ -165,6 +173,7 @@ func textToAi(message string) (string, error) {
 		log.Printf("Error chatting: %v", err)
 		return "", err
 	}
+
 	return response, nil
 }
 
