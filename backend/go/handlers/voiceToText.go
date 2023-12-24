@@ -80,7 +80,6 @@ func createTempDirectory(filePath string) error {
 	return err
 }
 
-
 // HandleVoiceInput: a HTTP handler for Speech to Text
 func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 
