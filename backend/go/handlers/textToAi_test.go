@@ -40,3 +40,40 @@ func TestAssistantInit(t *testing.T) {
 	})
 
 }
+
+func TestAssistantChat(t *testing.T) {
+	t.Run("Test Success", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, `{"response":"Test Response"}`)
+		}))
+		defer server.Close()
+
+		session := AssistantSession{
+			AssistantID: "test_id",
+			ThreadID:    "test_thread",
+		}
+
+		res, err := assistantChat(session, "", server.URL)
+		assert.NoError(t, err, "Expected no error")
+
+		assert.Equal(t, res, "Test Response", "Unexpected Response")
+
+	})
+
+	t.Run("Test HTTP Failure", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		session := AssistantSession{
+			AssistantID: "test_id",
+			ThreadID:    "test_thread",
+		}
+
+		res, err := assistantChat(session, "", server.URL)
+
+		assert.Error(t, err, "Expected an error")
+		assert.Equal(t, "", res, "Expected an empty response on error")
+	})
+}
