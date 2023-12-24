@@ -14,9 +14,9 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-type Dialogue struct{
+type Dialogue struct {
 	TranscribedText string `json:"transcribed_text"`
-	Response string `json:"response"`
+	Response        string `json:"response"`
 }
 
 // getOpenAIKey: Gets the environment variable OPENAI_API_KEY
@@ -145,7 +145,7 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 
 	dialogueStruct := Dialogue{
 		TranscribedText: transcribedText,
-		Response: response,
+		Response:        response,
 	}
 
 	jsonDialogue, err := json.Marshal(dialogueStruct)
