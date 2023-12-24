@@ -94,16 +94,23 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 	// File size is 20 megabytes, so 20 << 20 bytes
 	err := r.ParseMultipartForm(20 << 20)
 	if err != nil {
-		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		log.Println("Failed to parse form:", err)
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
 		return
 	}
 
 	file, _, err := r.FormFile("audio")
+	if err != nil {
+		log.Println("Failed to find audio:", err)
+		http.Error(w, "Failed to find audio", http.StatusBadRequest)
+		return
+	}
 	defer file.Close()
 
 	err = createTempDirectory(storageDir)
 	if err != nil {
-		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		log.Println("Failed to create temporary directory:", err)
+		http.Error(w, "Failed to create directory", http.StatusInternalServerError)
 		return
 	}
 
@@ -130,8 +137,8 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 	transcribedText, err := transcribe(audioFilePath)
 
 	if err != nil {
-		log.Println("Error transcribing text: ", err)
-		http.Error(w, "Failed to save audio file", http.StatusInternalServerError)
+		log.Println("Failed to transcribe audio file: ", err)
+		http.Error(w, "Failed to transcribe audio file", http.StatusInternalServerError)
 		return
 	}
 
