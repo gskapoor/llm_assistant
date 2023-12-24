@@ -143,6 +143,7 @@ audio {
   flex-direction: row;
   justify-content: space-between;
   margin-bottom: 2vh;
+  margin-top: 5px;
 }
 #navId button {
   width: 48%;
