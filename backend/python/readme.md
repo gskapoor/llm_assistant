@@ -1,3 +1,7 @@
+## Requirement
+
+Python 3.11+
+
 ## Set up environment
 
 Create a virtual environment
