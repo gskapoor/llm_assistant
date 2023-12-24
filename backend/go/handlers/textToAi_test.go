@@ -36,7 +36,7 @@ func TestAssistantInit(t *testing.T) {
 		session, err := assistantInit(server.URL)
 
 		assert.Error(t, err, "Expected an error")
-		assert.Equal(t, AssistantSession{}, session, "Expected an empty session on error")
+		assert.Equal(t, assistantSession{}, session, "Expected an empty session on error")
 	})
 
 }
@@ -48,7 +48,7 @@ func TestAssistantChat(t *testing.T) {
 		}))
 		defer server.Close()
 
-		session := AssistantSession{
+		session := assistantSession{
 			AssistantID: "test_id",
 			ThreadID:    "test_thread",
 		}
@@ -66,7 +66,7 @@ func TestAssistantChat(t *testing.T) {
 		}))
 		defer server.Close()
 
-		session := AssistantSession{
+		session := assistantSession{
 			AssistantID: "test_id",
 			ThreadID:    "test_thread",
 		}
@@ -86,7 +86,7 @@ func TestAssistantKill(t *testing.T) {
 		}))
 		defer server.Close()
 
-		session := AssistantSession{
+		session := assistantSession{
 			AssistantID: "test_id",
 			ThreadID:    "test_thread",
 		}
@@ -101,7 +101,7 @@ func TestAssistantKill(t *testing.T) {
 		}))
 		defer server.Close()
 
-		session := AssistantSession{
+		session := assistantSession{
 			AssistantID: "test_id",
 			ThreadID:    "test_thread",
 		}

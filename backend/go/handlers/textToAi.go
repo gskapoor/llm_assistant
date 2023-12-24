@@ -12,21 +12,21 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type AssistantSession struct {
+type assistantSession struct {
 	AssistantID string `json:"assistant_id"`
 	ThreadID    string `json:"thread_id"`
 }
-type AssistantSessionInfo struct {
-	AssistantSession AssistantSession `json:"assistant_session"`
+type assistantSessionInfo struct {
+	AssistantSession assistantSession `json:"assistant_session"`
 }
 
-type AssistantMessage struct {
+type assistantMessage struct {
 	AssistantID string `json:"assistant_id"`
 	ThreadID    string `json:"thread_id"`
 	Message     string `json:"message"`
 }
 
-type MessageResponse struct {
+type messageResponse struct {
 	Response string `json:"response"`
 }
 
@@ -45,9 +45,9 @@ func getLLMUrl() (string, error) {
 	return key, nil
 }
 
-func assistantInit(url string) (AssistantSession, error) {
+func assistantInit(url string) (assistantSession, error) {
 
-	var session AssistantSession
+	var session assistantSession
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -68,7 +68,7 @@ func assistantInit(url string) (AssistantSession, error) {
 		return session, err
 	}
 
-	var sessionHolder AssistantSessionInfo
+	var sessionHolder assistantSessionInfo
 	err = json.Unmarshal(body, &sessionHolder)
 	if err != nil {
 		log.Printf("Error unmarshaling JSON: %v", err)
@@ -81,11 +81,11 @@ func assistantInit(url string) (AssistantSession, error) {
 
 }
 
-func assistantChat(session AssistantSession, message, url string) (string, error) {
+func assistantChat(session assistantSession, message, url string) (string, error) {
 	assistantID := session.AssistantID
 	threadID := session.ThreadID
 
-	requestForm := AssistantMessage{
+	requestForm := assistantMessage{
 		AssistantID: assistantID,
 		ThreadID:    threadID,
 		Message:     message,
@@ -116,7 +116,7 @@ func assistantChat(session AssistantSession, message, url string) (string, error
 		return "", err
 	}
 
-	var messageRes MessageResponse
+	var messageRes messageResponse
 	err = json.Unmarshal(body, &messageRes)
 	if err != nil {
 		log.Printf("Error unmarshaling JSON: %v", err)
@@ -127,7 +127,7 @@ func assistantChat(session AssistantSession, message, url string) (string, error
 
 }
 
-func assistantKill(session AssistantSession, url string) error {
+func assistantKill(session assistantSession, url string) error {
 
 	jsonSession, err := json.Marshal(session)
 	if err != nil {
