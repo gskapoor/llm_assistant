@@ -94,14 +94,14 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 	// File size is 20 megabytes, so 20 << 20 bytes
 	err := r.ParseMultipartForm(20 << 20)
 	if err != nil {
-		log.Println("Failed to parse form:", err)
+		log.Println("Failed to parse form: ", err)
 		http.Error(w, "Failed to parse form", http.StatusBadRequest)
 		return
 	}
 
 	file, _, err := r.FormFile("audio")
 	if err != nil {
-		log.Println("Failed to find audio:", err)
+		log.Println("Failed to find audio: ", err)
 		http.Error(w, "Failed to find audio", http.StatusBadRequest)
 		return
 	}
@@ -109,7 +109,7 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 
 	err = createTempDirectory(storageDir)
 	if err != nil {
-		log.Println("Failed to create temporary directory:", err)
+		log.Println("Failed to create temporary directory: ", err)
 		http.Error(w, "Failed to create directory", http.StatusInternalServerError)
 		return
 	}
@@ -120,7 +120,7 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 
 	out, err := os.Create(audioFilePath)
 	if err != nil {
-		log.Println("Failed to create temporary file:", err)
+		log.Println("Failed to create temporary file: ", err)
 		http.Error(w, "Failed to create temporary file", http.StatusInternalServerError)
 		return
 	}
@@ -129,7 +129,7 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 
 	_, err = io.Copy(out, file)
 	if err != nil {
-		log.Println("Failed to save audio file", err)
+		log.Println("Failed to save audio file: ", err)
 		http.Error(w, "Failed to save audio file", http.StatusInternalServerError)
 		return
 	}
@@ -157,7 +157,7 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 
 	jsonDialogue, err := json.Marshal(dialogueStruct)
 	if err != nil {
-		log.Println("Error Marshaling JSON:", err)
+		log.Println("Error Marshaling JSON: ", err)
 		http.Error(w, "Failed to save audio file", http.StatusInternalServerError)
 		return
 	}
