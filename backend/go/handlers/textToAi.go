@@ -45,9 +45,9 @@ func getLLMUrl() (string, error) {
 	return key, nil
 }
 
-func assistantInit(url string) (AssistantSessionInfo, error) {
+func assistantInit(url string) (AssistantSession, error) {
 
-	var session AssistantSessionInfo
+	var session AssistantSession
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -67,19 +67,22 @@ func assistantInit(url string) (AssistantSessionInfo, error) {
 		return session, err
 	}
 
-	err = json.Unmarshal(body, &session)
+	var sessionHolder AssistantSessionInfo
+	err = json.Unmarshal(body, &sessionHolder)
 	if err != nil {
 		log.Printf("Error unmarshaling JSON: %v", err)
 		return session, err
 	}
 
+	session = sessionHolder.AssistantSession
+
 	return session, nil
 
 }
 
-func assistantChat(session AssistantSessionInfo, message, url string) (string, error) {
-	assistantID := session.AssistantSession.AssistantID
-	threadID := session.AssistantSession.ThreadID
+func assistantChat(session AssistantSession, message, url string) (string, error) {
+	assistantID := session.AssistantID
+	threadID := session.ThreadID
 
 	requestForm := AssistantMessage{
 		AssistantID: assistantID,
@@ -123,7 +126,7 @@ func assistantChat(session AssistantSessionInfo, message, url string) (string, e
 
 }
 
-func assistantKill(session AssistantSessionInfo, url string) error {
+func assistantKill(session AssistantSession, url string) error {
 
 	jsonSession, err := json.Marshal(session)
 	if err != nil {
