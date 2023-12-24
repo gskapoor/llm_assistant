@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -81,17 +80,6 @@ func createTempDirectory(filePath string) error {
 	return err
 }
 
-// textToAI: Takes a transcribed message and outputs an AI response
-func textToAI(message string) (string, error) {
-
-	// TODO: Implement this with text endpoint
-	_, err := http.NewRequest("POST", "localhost:8000/text", bytes.NewBufferString(message))
-	if err != nil {
-		return "", err
-	}
-
-	return "", nil
-}
 
 // HandleVoiceInput: a HTTP handler for Speech to Text
 func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
@@ -144,5 +132,7 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(transcribedText))
 
 	// TODO: Send a response from the text endpoint
+
+	// textToAI("text")
 
 }
