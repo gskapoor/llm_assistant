@@ -121,7 +121,6 @@ func assistantChat(session AssistantSession, message, url string) (string, error
 
 func assistantKill(session AssistantSession, url string) error {
 
-
 	jsonSession, err := json.Marshal(session)
 
 	_, err = http.NewRequest("DELETE", url, bytes.NewBuffer(jsonSession))
@@ -145,12 +144,12 @@ func textToAi(message string) (string, error) {
 
 	session, err := assistantInit(url)
 	defer assistantKill(session, url)
-
 	if err != nil {
 		log.Printf("Error initializing assistant: %v", err)
 		return "", err
 	}
-	response, err := assistantChat(session, message, url )
+
+	response, err := assistantChat(session, message, url)
 
 	return response, nil
 }
