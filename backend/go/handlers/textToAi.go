@@ -13,10 +13,11 @@ import (
 )
 
 type AssistantSession struct {
-	AssistantSession struct {
-		AssistantID string `json:"assistant_id"`
-		ThreadID    string `json:"thread_id"`
-	} `json:"assistant_session"`
+	AssistantID string `json:"assistant_id"`
+	ThreadID    string `json:"thread_id"`
+}
+type AssistantSessionInfo struct {
+	AssistantSession AssistantSession `json:"assistant_session"`
 }
 
 type AssistantMessage struct {
@@ -44,9 +45,9 @@ func getLLMUrl() (string, error) {
 	return key, nil
 }
 
-func assistantInit(url string) (AssistantSession, error) {
+func assistantInit(url string) (AssistantSessionInfo, error) {
 
-	var session AssistantSession
+	var session AssistantSessionInfo
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -77,7 +78,7 @@ func assistantInit(url string) (AssistantSession, error) {
 
 }
 
-func assistantChat(session AssistantSession, message, url string) (string, error) {
+func assistantChat(session AssistantSessionInfo, message, url string) (string, error) {
 	assistantID := session.AssistantSession.AssistantID
 	threadID := session.AssistantSession.ThreadID
 
@@ -123,7 +124,7 @@ func assistantChat(session AssistantSession, message, url string) (string, error
 
 }
 
-func assistantKill(session AssistantSession, url string) error {
+func assistantKill(session AssistantSessionInfo, url string) error {
 
 	jsonSession, err := json.Marshal(session)
 	if err != nil {
