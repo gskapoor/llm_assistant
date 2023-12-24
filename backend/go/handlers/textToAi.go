@@ -7,6 +7,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type AssistantSession struct {
@@ -26,11 +29,26 @@ type MessageResponse struct {
 	Response string `json:"response"`
 }
 
-func assistantInit() (AssistantSession, error) {
+func getLLMUrl() (string, error) {
+	const envLocation = ".env"
+	const envVarName = "LLM_URL"
+
+	err := godotenv.Load(envLocation)
+	if err != nil {
+		log.Println("Error reading environment: ", err)
+		return "", err
+	}
+
+	key := os.Getenv(envVarName)
+
+	return key, nil
+}
+
+func assistantInit(url string) (AssistantSession, error) {
 
 	var session AssistantSession
 
-	resp, err := http.Get("http://localhost:8000/assistant")
+	resp, err := http.Get(url)
 	if err != nil {
 		log.Printf("Error accessing API: %v", err)
 		return session, err
@@ -58,7 +76,7 @@ func assistantInit() (AssistantSession, error) {
 
 }
 
-func assistantChat(session AssistantSession, message string) (string, error) {
+func assistantChat(session AssistantSession, message, url string) (string, error) {
 	assistantID := session.AssistantSession.AssistantID
 	threadID := session.AssistantSession.ThreadID
 
@@ -76,7 +94,7 @@ func assistantChat(session AssistantSession, message string) (string, error) {
 	}
 
 	// TODO: keep the URL somewhere else/pass in a parameter
-	resp, err := http.Post("http://localhost:8000/assistant", "application/json", bytes.NewBuffer(jsonRequest))
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonRequest))
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
@@ -101,11 +119,12 @@ func assistantChat(session AssistantSession, message string) (string, error) {
 
 }
 
-func assistantKill(session AssistantSession) error {
+func assistantKill(session AssistantSession, url string) error {
+
 
 	jsonSession, err := json.Marshal(session)
 
-	_, err = http.NewRequest("DELETE", "http://localhost:8000/assistant", bytes.NewBuffer(jsonSession))
+	_, err = http.NewRequest("DELETE", url, bytes.NewBuffer(jsonSession))
 	if err != nil {
 		log.Printf("Error deleting session: %v", err)
 		return err
@@ -115,13 +134,23 @@ func assistantKill(session AssistantSession) error {
 }
 
 func textToAi(message string) (string, error) {
-	session, err := assistantInit()
-	defer assistantKill(session)
+
+	base_url, err := getLLMUrl()
+	if err != nil {
+		log.Printf("Error getting url, make sure to set .env variable: %v", err)
+		return "", err
+	}
+
+	url := base_url + "/assistant"
+
+	session, err := assistantInit(url)
+	defer assistantKill(session, url)
 
 	if err != nil {
 		log.Printf("Error initializing assistant: %v", err)
+		return "", err
 	}
-	response, err := assistantChat(session, message)
+	response, err := assistantChat(session, message, url )
 
 	return response, nil
 }
