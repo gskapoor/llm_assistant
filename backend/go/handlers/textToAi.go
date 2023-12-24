@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -60,7 +60,7 @@ func assistantInit(url string) (AssistantSession, error) {
 		return session, err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Error reading response body: %v", err)
 		return session, err
@@ -93,8 +93,11 @@ func assistantChat(session AssistantSession, message, url string) (string, error
 		return "", err
 	}
 
-	// TODO: keep the URL somewhere else/pass in a parameter
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonRequest))
+	if err != nil {
+		log.Printf("Error making post request to LLM url: %v", err)
+		return "", err
+	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
@@ -102,7 +105,7 @@ func assistantChat(session AssistantSession, message, url string) (string, error
 		return "", err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Error reading response body: %v", err)
 		return "", err
@@ -122,6 +125,10 @@ func assistantChat(session AssistantSession, message, url string) (string, error
 func assistantKill(session AssistantSession, url string) error {
 
 	jsonSession, err := json.Marshal(session)
+	if err != nil {
+		log.Printf("Error marshaling JSON: %v", err)
+		return err
+	}
 
 	_, err = http.NewRequest("DELETE", url, bytes.NewBuffer(jsonSession))
 	if err != nil {
@@ -150,13 +157,16 @@ func textToAi(message string) (string, error) {
 	}
 
 	response, err := assistantChat(session, message, url)
-
+	if err != nil {
+		log.Printf("Error chatting: %v", err)
+		return "", err
+	}
 	return response, nil
 }
 
 func HandleTextInput(w http.ResponseWriter, r *http.Request) {
 
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Error reading request body:", http.StatusInternalServerError)
 		return
@@ -167,6 +177,6 @@ func HandleTextInput(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error submitting request", http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, str)
+	fmt.Fprint(w, str)
 
 }
