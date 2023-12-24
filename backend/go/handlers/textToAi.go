@@ -134,7 +134,6 @@ func HandleTextInput(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	str, err := textToAi(string(body))
 	if err != nil {
 		http.Error(w, "Error submitting request", http.StatusInternalServerError)
