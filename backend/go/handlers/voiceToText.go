@@ -124,14 +124,16 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 	transcribedText, err := transcribe(audioFilePath)
 
 	if err != nil {
-		log.Println("ERROR")
+		log.Println("Error transcribing text: ", err)
+	}
+
+	// TODO: Make this call the endpoint instead, this is easier for now
+	str, err := textToAi(transcribedText)
+	if err != nil {
+		log.Println("Error reaching AI: ", err)
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(transcribedText))
-
-	// TODO: Send a response from the text endpoint
-
-	// textToAI("text")
+	w.Write([]byte(str))
 
 }
