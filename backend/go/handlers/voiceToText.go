@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -12,6 +13,11 @@ import (
 	"github.com/joho/godotenv"
 	openai "github.com/sashabaranov/go-openai"
 )
+
+type Dialogue struct{
+	TranscribedText string `json:"transcribed_text"`
+	Response string `json:"response"`
+}
 
 // getOpenAIKey: Gets the environment variable OPENAI_API_KEY
 func getOpenAIKey() (string, error) {
@@ -125,15 +131,31 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println("Error transcribing text: ", err)
+		http.Error(w, "Failed to save audio file", http.StatusInternalServerError)
+		return
 	}
 
 	// TODO: Make this call the endpoint instead, this is easier for now
-	str, err := textToAi(transcribedText)
+	response, err := textToAi(transcribedText)
 	if err != nil {
 		log.Println("Error reaching AI: ", err)
+		http.Error(w, "Failed to save audio file", http.StatusInternalServerError)
+		return
+	}
+
+	dialogueStruct := Dialogue{
+		TranscribedText: transcribedText,
+		Response: response,
+	}
+
+	jsonDialogue, err := json.Marshal(dialogueStruct)
+	if err != nil {
+		log.Println("Error Marshaling JSON:", err)
+		http.Error(w, "Failed to save audio file", http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(str))
+	w.Write([]byte(jsonDialogue))
 
 }
