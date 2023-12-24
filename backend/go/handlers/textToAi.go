@@ -57,7 +57,8 @@ func assistantInit(url string) (AssistantSession, error) {
 
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("Request failed with status code: %v", resp.StatusCode)
-		return session, err
+		// TODO: Make HTTP Errors a Library, this is too common a pattern
+		return session, fmt.Errorf("Request failed with status code: %v", resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
