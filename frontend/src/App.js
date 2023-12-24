@@ -34,8 +34,14 @@ function App() {
     const formJson = Object.fromEntries(formData.entries());
 
     genMessage({author: "user", text: formJson.message, audio: null})
-    const responseJson = {message: "[insert API response here]"};
-    genMessage({author: "maya", text: responseJson.message, audio: null})
+
+    const options = {
+      method: "POST",
+      body: formJson.message
+    }
+    const response = await fetch('http://localhost:8080/text', options)
+    const responseText = await response.text()
+    genMessage({author: "maya", text: responseText, audio: null})
 
   }
 
