@@ -143,10 +143,14 @@ func assistantKill(session AssistantSession, url string) error {
 
 	client := &http.Client{}
 
-	_, err = client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("Error deleting session: %v", err)
 		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("request failed with status code: %v", resp.StatusCode)
 	}
 
 	return nil
