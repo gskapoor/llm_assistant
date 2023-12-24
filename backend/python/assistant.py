@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from openai import AsyncOpenAI
 from pydantic import BaseModel
 
+# TODO: add validation Annotated to class model
+
 class AssistantSession(BaseModel):
   """
   A class containing all the information to reference a session
@@ -18,6 +20,17 @@ class AssistantSession(BaseModel):
 
   assistant_id: str
   thread_id: str
+
+class AssistantSessionMessage(AssistantSession):
+  """
+  A class containing a session with a message, inherited from AssistantSession
+  
+  Extra Attributes
+  ----------
+  message : str
+    A string of the message send to the session
+  """
+  message: str
 
 # Const Parameters
 WAIT_TIME = 3 # (seconds) the time to wait between checking whether the LLM's response is complete
@@ -52,7 +65,7 @@ async def initialize_conversation():
   return new_session
 
 
-async def continue_conversation(current_session, next_message):
+async def continue_conversation(assistant_message):
   """Takes session information and a new message from the user and returns a response from the LLM
   
   Parameters
@@ -69,8 +82,9 @@ async def continue_conversation(current_session, next_message):
   """
 
   # Unpack current_session for ease of access
-  threadId = current_session.thread_id
-  assistantId = current_session.assistant_id
+  threadId = assistant_message.thread_id
+  assistantId = assistant_message.assistant_id
+  next_message = assistant_message.message
 
   # Adds the user's message to the thread
   await client.beta.threads.messages.create(

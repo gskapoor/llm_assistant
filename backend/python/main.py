@@ -1,4 +1,4 @@
-from assistant import initialize_conversation, continue_conversation, end_conversation, AssistantSession
+from assistant import initialize_conversation, continue_conversation, end_conversation, AssistantSession, AssistantSessionMessage
 from fastapi import FastAPI
 
 app = FastAPI()
@@ -14,8 +14,8 @@ async def init():
     return {"assistant_session": new_assistant}
 
 @app.post("/assistant")
-async def cont(assistant: AssistantSession, message: str):
-    response = await continue_conversation(assistant, message)
+async def cont(assistant_message: AssistantSessionMessage):
+    response = await continue_conversation(assistant_message)
     return {"response": response}
 
 @app.delete("/assistant")
