@@ -143,6 +143,7 @@ audio {
   flex-direction: row;
   justify-content: space-between;
   margin-bottom: 2vh;
+  margin-top: 5px;
 }
 #navId button {
   width: 48%;
@@ -170,7 +171,7 @@ audio {
   position: fixed;
 }
 .overlay {
-  background: rgba(49,49,49,0.8);
+  background: rgba(49,4S9,49,0.8);
 }
 .modal-content {
   position: absolute;
