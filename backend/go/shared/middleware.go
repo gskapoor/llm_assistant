@@ -26,7 +26,7 @@ func LoggingStart() Middleware {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 
-			log.Println("start time", r.URL.Path)
+			log.Println("Starting task: ", r.URL.Path)
 
 			next(w, r)
 
