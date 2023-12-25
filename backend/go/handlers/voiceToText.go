@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -12,6 +13,11 @@ import (
 	"github.com/joho/godotenv"
 	openai "github.com/sashabaranov/go-openai"
 )
+
+type dialogue struct {
+	TranscribedText string `json:"transcribed_text"`
+	Response        string `json:"response"`
+}
 
 // getOpenAIKey: Gets the environment variable OPENAI_API_KEY
 func getOpenAIKey() (string, error) {
@@ -80,7 +86,6 @@ func createTempDirectory(filePath string) error {
 	return err
 }
 
-
 // HandleVoiceInput: a HTTP handler for Speech to Text
 func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 
@@ -89,16 +94,23 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 	// File size is 20 megabytes, so 20 << 20 bytes
 	err := r.ParseMultipartForm(20 << 20)
 	if err != nil {
-		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		log.Println("Failed to parse form: ", err)
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
 		return
 	}
 
 	file, _, err := r.FormFile("audio")
+	if err != nil {
+		log.Println("Failed to find audio: ", err)
+		http.Error(w, "Failed to find audio", http.StatusBadRequest)
+		return
+	}
 	defer file.Close()
 
 	err = createTempDirectory(storageDir)
 	if err != nil {
-		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+		log.Println("Failed to create temporary directory: ", err)
+		http.Error(w, "Failed to create directory", http.StatusInternalServerError)
 		return
 	}
 
@@ -108,7 +120,7 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 
 	out, err := os.Create(audioFilePath)
 	if err != nil {
-		log.Println("Failed to create temporary file:", err)
+		log.Println("Failed to create temporary file: ", err)
 		http.Error(w, "Failed to create temporary file", http.StatusInternalServerError)
 		return
 	}
@@ -117,7 +129,7 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 
 	_, err = io.Copy(out, file)
 	if err != nil {
-		log.Println("Failed to save audio file", err)
+		log.Println("Failed to save audio file: ", err)
 		http.Error(w, "Failed to save audio file", http.StatusInternalServerError)
 		return
 	}
@@ -125,14 +137,32 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 	transcribedText, err := transcribe(audioFilePath)
 
 	if err != nil {
-		log.Println("ERROR")
+		log.Println("Failed to transcribe audio file: ", err)
+		http.Error(w, "Failed to transcribe audio file", http.StatusInternalServerError)
+		return
+	}
+
+	// TODO: Make this call the endpoint instead, this is easier for now
+	response, err := textToAi(transcribedText)
+	if err != nil {
+		log.Println("Error reaching AI: ", err)
+		http.Error(w, "Failed to save audio file", http.StatusInternalServerError)
+		return
+	}
+
+	dialogueStruct := dialogue{
+		TranscribedText: transcribedText,
+		Response:        response,
+	}
+
+	jsonDialogue, err := json.Marshal(dialogueStruct)
+	if err != nil {
+		log.Println("Error Marshaling JSON: ", err)
+		http.Error(w, "Failed to save audio file", http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(transcribedText))
-
-	// TODO: Send a response from the text endpoint
-
-	// textToAI("text")
+	w.Write([]byte(jsonDialogue))
 
 }
