@@ -19,6 +19,9 @@ async def cont(assistant_message: AssistantSessionMessage):
         response = await continue_conversation(assistant_message)
     except OpenAIError as err:
         raise HTTPException(err.error_code, err.error_description)
+    # fallback for general error
+    except Exception as err:
+        raise HTTPException(500, err) # 500 internal error
     return {"response": response}
 
 @app.delete("/assistant")
