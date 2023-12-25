@@ -6,6 +6,22 @@ from pydantic import BaseModel
 
 # TODO: add validation Annotated to class model
 
+# Const Parameters
+WAIT_TIME = 3 # (seconds) the time to wait between checking whether the LLM's response is complete
+MAX_NUM_WAITS = 1000 # sets wait time for timeout from waiting on model response
+VALID_ERROR_TYPES = ["cancelled", "failed", "expired"]
+ERROR_CODES = {
+  "cancelled": 522,
+  "failed": 532,
+  "expired": 539
+} # TODO: add real codes not just numbers I pulled out of thin air
+ERROR_DESCRIPTIONS = {
+  "cancelled": "Request was cancelled",
+  "failed": "Request failed",
+  "expired": "Request expired"
+}
+
+
 class AssistantSession(BaseModel):
   """
   A class containing all the information to reference a session
@@ -32,9 +48,24 @@ class AssistantSessionMessage(AssistantSession):
   """
   message: str
 
-# Const Parameters
-WAIT_TIME = 3 # (seconds) the time to wait between checking whether the LLM's response is complete
-MAX_NUM_WAITS = 1000 # sets wait time for timeout from waiting on model response
+class OpenAIError(BaseException):
+  """
+  A class holding the different types of errors the openai API can raise
+
+  Attributes
+  ----------
+  error_type : str
+    A string holding the name of the error
+  error_code : int
+    A numerical code for the error
+  error_description: str
+    A verbal description for the error
+  """
+
+  def __init__(self, error_type): # TODO: Encode using something other than dictionaries
+    self.error_type = error_type
+    self.error_code = ERROR_CODES[self.error_type]
+    self.error_description = ERROR_DESCRIPTIONS[self.error_type]
 
 # Initialization commands
 load_dotenv()
@@ -106,25 +137,16 @@ async def continue_conversation(assistant_message):
     )
 
     # Takes action based on the status
-    # TODO: replace print statements with error handling
-    match run.status:
-      case "requires_action":
-        continue # This means that a tool/function needs to be called. Will implement once we have at least one tool. Should probably be implemented as its own function
-      case "cancelled":
-        print("cancelled")
-        break
-      case "failed":
-        print("failed")
-        break
-      case "expired":
-        print("expired")
-        break
-      case "completed":
-        break
-      case _:
-        num_waits += 1
-        time.sleep(WAIT_TIME)
-
+    if run.status == "requires_action": # This means that a tool/function needs to be called. Will implement once we have at least one tool. Should probably be implemented as its own function
+      continue
+    elif run.status in VALID_ERROR_TYPES: # This means there is some sort of error:
+      raise OpenAIError(error_type=run.status)
+    elif run.status == "completed": # The LLM is done renerating its response
+      break
+    else:
+      num_waits += 1
+      time.sleep(WAIT_TIME)
+        
   # Grabs the LLM's response from the end of the threatd
   messages = await client.beta.threads.messages.list(thread_id=threadId)
   response = messages.data[0].content[0].text.value

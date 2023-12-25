@@ -1,5 +1,5 @@
-from assistant import initialize_conversation, continue_conversation, end_conversation, AssistantSession, AssistantSessionMessage
-from fastapi import FastAPI
+from assistant import initialize_conversation, continue_conversation, end_conversation, AssistantSession, AssistantSessionMessage, OpenAIError
+from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
 
@@ -15,7 +15,10 @@ async def init():
 
 @app.post("/assistant")
 async def cont(assistant_message: AssistantSessionMessage):
-    response = await continue_conversation(assistant_message)
+    try:
+        response = await continue_conversation(assistant_message)
+    except OpenAIError as err:
+        raise HTTPException(err.error_code, err.error_description)
     return {"response": response}
 
 @app.delete("/assistant")
