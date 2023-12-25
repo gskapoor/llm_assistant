@@ -5,9 +5,10 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
+
 	"github.com/gskapoor/llm_assistant/backend/go/handlers"
 	midw "github.com/gskapoor/llm_assistant/backend/go/shared"
-	"github.com/rs/cors"
 )
 
 func main() {
