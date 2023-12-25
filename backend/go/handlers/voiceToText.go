@@ -14,7 +14,7 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-type Dialogue struct {
+type dialogue struct {
 	TranscribedText string `json:"transcribed_text"`
 	Response        string `json:"response"`
 }
@@ -150,7 +150,7 @@ func HandleVoiceInput(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dialogueStruct := Dialogue{
+	dialogueStruct := dialogue{
 		TranscribedText: transcribedText,
 		Response:        response,
 	}
