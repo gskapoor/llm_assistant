@@ -4,8 +4,6 @@ from dotenv import load_dotenv
 from openai import AsyncOpenAI
 from pydantic import BaseModel
 
-# TODO: add validation Annotated to class model
-
 # Const Parameters
 WAIT_TIME = 3 # (seconds) the time to wait between checking whether the LLM's response is complete
 MAX_NUM_WAITS = 1000 # sets wait time for timeout from waiting on model response
@@ -15,6 +13,7 @@ ERROR_CODES = {
   "failed": 532,
   "expired": 539
 } # TODO: add real codes not just numbers I pulled out of thin air
+# TODO: please use 2010s error handling, not 1980s error handling
 ERROR_DESCRIPTIONS = {
   "cancelled": "Request was cancelled",
   "failed": "Request failed",
@@ -22,6 +21,7 @@ ERROR_DESCRIPTIONS = {
 }
 
 
+# TODO: add validation Annotated to class model
 class AssistantSession(BaseModel):
   """
   A class containing all the information to reference a session
@@ -48,7 +48,9 @@ class AssistantSessionMessage(AssistantSession):
   """
   message: str
 
-class OpenAIError(BaseException):
+# Error
+
+class OpenAIError(Exception):
   """
   A class holding the different types of errors the openai API can raise
 
