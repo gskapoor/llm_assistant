@@ -5,28 +5,24 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/gskapoor/llm_assistant/backend/go/handlers"
-	middleware "github.com/gskapoor/llm_assistant/backend/go/shared"
-)
+	"github.com/rs/cors"
 
-func textHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain")
-	fmt.Fprint(w, "BOTTOM TEXT\n")
-}
+	"github.com/gskapoor/llm_assistant/backend/go/handlers"
+	midw "github.com/gskapoor/llm_assistant/backend/go/shared"
+)
 
 func main() {
 
 	r := mux.NewRouter()
 
-	//r.HandleFunc("/voice", middleware.LoggingStart()(handlers.HandleVoiceInput))
-	//r.HandleFunc("/text", middleware.LoggingStart()(handlers.HandleTextInput))
-
-	r.HandleFunc("/text", middleware.Chain(handlers.HandleTextInput, middleware.LoggingStart(), middleware.Logging()))
-	r.HandleFunc("/voice", middleware.Chain(handlers.HandleVoiceInput, middleware.LoggingStart(), middleware.Logging()))
-	// Form w/ Audio -> Text -> an AI response
+	r.HandleFunc("/text", midw.Chain(handlers.HandleTextInput, midw.LoggingStart(), midw.Logging()))
+	r.HandleFunc("/voice", midw.Chain(handlers.HandleVoiceInput, midw.LoggingStart(), midw.Logging()))
 
 	fmt.Println("Server is running on :8080")
-	err := http.ListenAndServe(":8080", r)
+
+	handler := cors.Default().Handler(r)
+
+	err := http.ListenAndServe(":8080", handler)
 	if err != nil {
 		fmt.Println(err)
 	}
