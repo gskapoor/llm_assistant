@@ -2,7 +2,17 @@ import { useState, useRef } from 'react';
 import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder';
 import './App.css';
 
-const initialMessages = [{author: "maya", text: "Welcome to MAYA! How may I assist you today?"}];
+//const initialMessages = [{author: "maya", text: "Welcome to MAYA! How may I assist you today?"}];
+//const API_URL = "http://localhost:8080"
+const API_URL = "https://musical-space-robot-vrp5qxxxj6pcpwv4-8080.app.github.dev"
+const initialMessages = [{author: "maya", text: "Welcome to MAYA! How may I assist you today?"},
+{author: "user", text: "Welcome to MAYA! How may I assist you today?"},
+{author: "maya", text: "Welcome to MAYA! How may I assist you today?"},
+{author: "user", text: "Welcome to MAYA! How may I assist you today?"},
+{author: "maya", text: "Welcome to MAYA! How may I assist you today?"},
+{author: "user", text: "Welcome to MAYA! How may I assist you today?"},
+{author: "maya", text: "Welcome to MAYA! How may I assist you today?"},
+{author: "user", text: "Welcome to MAYA! How may I assist you today?"}];
 
 function App() {
   const [messages, setMessages] = useState(initialMessages);
@@ -16,16 +26,18 @@ function App() {
     const audioFile = new File([blob], 'audio.mp3', { type: 'audio/mpeg' });
     const data = new FormData();
     data.append("audio", audioFile);
+    
     const options = {
       method: "POST",
       mode: "cors",
       body: data
     };
-    const response = await fetch('http://localhost:8080/voice', options);
-    const encodedResponse = await response.json();
-
-    genMessage({author: "user", text: encodedResponse.transcribed_text, audio: url});
-    genMessage({author: "maya", text: encodedResponse.response, audio: null});
+    fetch(API_URL + '/voice', options)
+    .then(response => response.json())
+    .then(responseJson => {
+      genMessage({author: "user", text: responseJson.transcribed_text, audio: url});
+      genMessage({author: "maya", text: responseJson.response, audio: null});
+    })
   };
 
   async function handleTextMessage(e) {
@@ -34,17 +46,17 @@ function App() {
     const form = e.target;
     const formData = new FormData(form);
     const formJson = Object.fromEntries(formData.entries());
-
-    genMessage({author: "user", text: formJson.message, audio: null})
+    genMessage({author: "user", text: formJson.message, audio: null});
 
     const options = {
       method: "POST",
       body: formJson.message
-    }
-    const response = await fetch('http://localhost:8080/text', options)
-    const responseText = await response.text()
-    genMessage({author: "maya", text: responseText, audio: null})
-
+    };
+    fetch(API_URL + '/text', options)
+    .then(response => response.text())
+    .then(responseText => {
+      genMessage({author: "maya", text: responseText, audio: null});
+    })
   }
 
   function handleEnter(e) {

@@ -2,7 +2,7 @@
 .App {
   position: absolute;
   bottom: 0;
-  width: 90vw;
+  width: 95vw;
   padding-left: 2.5vw;
   padding-right: 2.5vw;
   max-height: 95%;
@@ -36,10 +36,11 @@
   margin-bottom: 2vh;
 }
 #messageList {
-  max-height: 80vh;
+  max-height: 75vh;
   overflow-y: auto;
-  width: 100%;
-  padding-right: 5%;
+  width: 98%;
+  padding-left: 1%;
+  padding-right: 1%;
   float: right;
 
   display: flex;
@@ -142,8 +143,9 @@ audio {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-bottom: 2vh;
-  margin-top: 5px;
+  margin-bottom: 1vh;
+  margin-top: 1vh;
+  max-height: 5vh;
 }
 #navId button {
   width: 48%;
