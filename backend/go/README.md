@@ -2,6 +2,18 @@
 
 This documentation is currently under construction
 
+## Summary
+This backend's main purpose is to:
+  1. Convert user input voice to text, which will be an input for AI
+  2. Convert AI output text to speech
+
+## Dependencies/Constrains
+  1. Number of recognizable languages for the user input voice
+  2. Cloud capacity
+  3. API versions
+  4. Runtime versions
+  5. Supported browser
+     
 ## Installing Dependencies
 
 ```sh
