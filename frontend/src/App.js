@@ -1,24 +1,18 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder';
+import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 import './App.css';
 
-//const initialMessages = [{author: "maya", text: "Welcome to MAYA! How may I assist you today?"}];
-//const API_URL = "http://localhost:8080"
-const API_URL = "https://musical-space-robot-vrp5qxxxj6pcpwv4-8080.app.github.dev"
-const initialMessages = [{author: "maya", text: "Welcome to MAYA! How may I assist you today?"},
-{author: "user", text: "Welcome to MAYA! How may I assist you today?"},
-{author: "maya", text: "Welcome to MAYA! How may I assist you today?"},
-{author: "user", text: "Welcome to MAYA! How may I assist you today?"},
-{author: "maya", text: "Welcome to MAYA! How may I assist you today?"},
-{author: "user", text: "Welcome to MAYA! How may I assist you today?"},
-{author: "maya", text: "Welcome to MAYA! How may I assist you today?"},
-{author: "user", text: "Welcome to MAYA! How may I assist you today?"}];
+const initialMessages = [{author: "maya", text: "Welcome to MAYA! How may I assist you today?"}];
+const API_URL = "http://localhost:8080"
 
 function App() {
   const [messages, setMessages] = useState(initialMessages);
   const [theme, setTheme] = useState("grayscale");
-  const recorderControls = useAudioRecorder();
   const [modal, setModal] = useState(null);
+  const [ user, setUser ] = useState(null);
+  const [ profile, setProfile ] = useState(null);
+  const recorderControls = useAudioRecorder();
   const formRef = useRef(null);
 
   async function handleAudioMessage(blob) {
@@ -26,7 +20,7 @@ function App() {
     const audioFile = new File([blob], 'audio.mp3', { type: 'audio/mpeg' });
     const data = new FormData();
     data.append("audio", audioFile);
-    
+
     const options = {
       method: "POST",
       mode: "cors",
@@ -78,6 +72,34 @@ function App() {
       setModal(mode);
     }
   };
+
+  const login = useGoogleLogin({
+    onSuccess: (codeResponse) => setUser(codeResponse),
+    onError: (error) => console.log('Login Failed:', error)
+  });
+
+  const logout = () => {
+      googleLogout();
+      setProfile(null);
+  };
+
+  useEffect(
+    () => {
+        if (user) {
+          const options = {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${user.access_token}`,
+              Accept: 'application/json'
+            }
+          };
+          fetch(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, options)
+          .then(res => res.json())
+          .then(json => setProfile(json))
+          .catch(err => console.log(err));
+        }
+    }, [user]
+);
 
   function MessageList({messages}) {
     return (
@@ -131,14 +153,19 @@ function App() {
           {modal === "account" &&
           <div className="modal-content"> 
             <h2>Account</h2>
-            <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident
-            perferendis suscipit officia recusandae, eveniet quaerat assumenda
-            id fugit, dignissimos maxime non natus placeat illo iusto!
-            Sapiente dolorum id maiores dolores? Illum pariatur possimus
-            quaerat ipsum quos molestiae rem aspernatur dicta tenetur. Sunt
-            placeat tempora vitae enim incidunt porro fuga ea.
-            </p>
+            {profile ? (
+                <div>
+                    <img src={profile.picture} alt="user" />
+                    <h3>User Logged in</h3>
+                    <p>Name: {profile.name}</p>
+                    <p>Email Address: {profile.email}</p>
+                    <br />
+                    <br />
+                    <button onClick={logout}>Log out</button>
+                </div>
+            ) : (
+                <button onClick={() => login()}>Sign in with Google 🚀 </button>
+            )}
             <button className="close-modal" onClick={() => toggleModal(null)}>CLOSE</button>
           </div>
           }
