@@ -47,7 +47,7 @@ function App() {
     //Made logic statements to handle whitespace, checked message after trim to see if there is a message after function
     //else throws typical response.
 
-    if (formJson.message.trim().length == 0) {
+    if (formJson.message.trim().length === 0) {
       const responseJson = {message: "Oops! Looks like you forgot to write something!"};
       genMessage({author: "maya", text: responseJson.message, audio: null})
     }
