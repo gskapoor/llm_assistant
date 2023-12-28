@@ -41,21 +41,30 @@ function App() {
     const formData = new FormData(form);
     const formJson = Object.fromEntries(formData.entries());
 
-    genMessage({author: "user", text: formJson.message, audio: null});
+    genMessage({author: "user", text: formJson.message, audio: null})
     formRef.current.reset();
-    
-    const options = {
-      method: "POST",
-      body: formJson.message
-    };
-    fetch(API_URL + '/text', options)
-    .then(response => response.text())
-    .then(responseText => {
-      genMessage({author: "maya", text: responseText, audio: null});
-    })
+
+    //Made logic statements to handle whitespace, checked message after trim to see if there is a message after function
+    //else throws typical response.
+
+    if (formJson.message.trim().length == 0) {
+      const responseJson = {message: "Oops! Looks like you forgot to write something!"};
+      genMessage({author: "maya", text: responseJson.message, audio: null})
+    }
+    else{
+      const options = {
+        method: "POST",
+        body: formJson.message
+      };
+      fetch(API_URL + '/text', options)
+      .then(response => response.text())
+      .then(responseText => {
+        genMessage({author: "maya", text: responseText, audio: null});
+      })
+    }
 
   }
-
+  
   function handleEnter(e) {
     if(e.keyCode === 13 && e.shiftKey === false) {
       e.preventDefault();
