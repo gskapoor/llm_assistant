@@ -114,27 +114,30 @@ func TestAssistantKill(t *testing.T) {
 }
 
 func TestTextToAi(t *testing.T) {
-	mockResponse := `{"response": "MockedResponse"}`
+	t.Run("Success", func(t *testing.T) {
 
-	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(mockResponse))
-	}))
-	defer mockServer.Close()
+		mockResponse := `{"response": "MockedResponse"}`
 
-	err := os.Setenv("LLM_URL", mockServer.URL)
-	if err != nil {
-		t.Fatalf("Error setting environment variable: %v", err)
-	}
-	defer os.Unsetenv("LLM_URL")
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte(mockResponse))
+		}))
+		defer mockServer.Close()
 
-	testMessage := "Test message"
-	result, err := textToAi(testMessage)
+		err := os.Setenv("LLM_URL", mockServer.URL)
+		if err != nil {
+			t.Fatalf("Error setting environment variable: %v", err)
+		}
+		defer os.Unsetenv("LLM_URL")
 
-	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
-	}
+		testMessage := "Test message"
+		result, err := textToAi(testMessage)
 
-	if result != "MockedResponse" {
-		t.Errorf("Expected 'MockedResponse', got '%s'", result)
-	}
+		if err != nil {
+			t.Errorf("Unexpected error: %v", err)
+		}
+
+		if result != "MockedResponse" {
+			t.Errorf("Expected 'MockedResponse', got '%s'", result)
+		}
+	})
 }
