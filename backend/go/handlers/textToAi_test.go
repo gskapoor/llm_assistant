@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -110,4 +111,30 @@ func TestAssistantKill(t *testing.T) {
 		assert.Error(t, err, "Expected an error")
 	})
 
+}
+
+func TestTextToAi(t *testing.T) {
+	mockResponse := `{"response": "MockedResponse"}`
+
+	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(mockResponse))
+	}))
+	defer mockServer.Close()
+
+	err := os.Setenv("LLM_URL", mockServer.URL)
+	if err != nil {
+		t.Fatalf("Error setting environment variable: %v", err)
+	}
+	defer os.Unsetenv("LLM_URL")
+
+	testMessage := "Test message"
+	result, err := textToAi(testMessage)
+
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	if result != "MockedResponse" {
+		t.Errorf("Expected 'MockedResponse', got '%s'", result)
+	}
 }

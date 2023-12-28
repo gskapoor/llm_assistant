@@ -30,21 +30,6 @@ type messageResponse struct {
 	Response string `json:"response"`
 }
 
-func getLLMUrl() (string, error) {
-	const envLocation = ".env"
-	const envVarName = "LLM_URL"
-
-	err := godotenv.Load(envLocation)
-	if err != nil {
-		log.Println("Error reading environment: ", err)
-		return "", err
-	}
-
-	key := os.Getenv(envVarName)
-
-	return key, nil
-}
-
 func assistantInit(url string) (assistantSession, error) {
 
 	var session assistantSession
@@ -82,12 +67,10 @@ func assistantInit(url string) (assistantSession, error) {
 }
 
 func assistantChat(session assistantSession, message, url string) (string, error) {
-	assistantID := session.AssistantID
-	threadID := session.ThreadID
 
 	requestForm := assistantMessage{
-		AssistantID: assistantID,
-		ThreadID:    threadID,
+		AssistantID: session.AssistantID,
+		ThreadID:    session.ThreadID,
 		Message:     message,
 	}
 
@@ -158,13 +141,9 @@ func assistantKill(session assistantSession, url string) error {
 
 func textToAi(message string) (string, error) {
 
-	base_url, err := getLLMUrl()
-	if err != nil {
-		log.Printf("Error getting url, make sure to set .env variable: %v", err)
-		return "", err
-	}
+	baseUrl := os.Getenv("LLM_URL")
 
-	url := base_url + "/assistant"
+	url := baseUrl + "/assistant"
 
 	session, err := assistantInit(url)
 	defer assistantKill(session, url)
@@ -183,6 +162,13 @@ func textToAi(message string) (string, error) {
 }
 
 func HandleTextInput(w http.ResponseWriter, r *http.Request) {
+
+	envLocation := ".env"
+	err := godotenv.Load(envLocation)
+	if err != nil {
+		http.Error(w, "Error reading environment:", http.StatusInternalServerError)
+		return
+	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
