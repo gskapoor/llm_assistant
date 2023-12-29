@@ -140,4 +140,32 @@ func TestTextToAi(t *testing.T) {
 			t.Errorf("Expected 'MockedResponse', got '%s'", result)
 		}
 	})
+
+	t.Run("Failure to Initialize", func(t *testing.T) {
+
+		mockResponse := `{"response": "MockedResponse"}`
+
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == "GET" {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			} else {
+				w.Write([]byte(mockResponse))
+			}
+		}))
+		defer mockServer.Close()
+
+		err := os.Setenv("LLM_URL", mockServer.URL)
+		if err != nil {
+			t.Fatalf("Error setting environment variable: %v", err)
+		}
+		defer os.Unsetenv("LLM_URL")
+
+		testMessage := "Test message"
+		_, err = textToAi(testMessage)
+
+		if err == nil {
+			t.Errorf("Expected an error, but got nil")
+		}
+		// TODO: Write test for correct HTTP Error, not doable until Error library is made
+	})
 }
