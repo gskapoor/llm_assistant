@@ -27,10 +27,35 @@ func TestAssistantInit(t *testing.T) {
 		assert.Equal(t, "test_thread", session.ThreadID, "Unexpected thread ID")
 	})
 
+	t.Run("Get Error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, `{"assistant_session":{"assistant_id":"test_id","thread_id":"test_thread"}}`)
+		}))
+		defer server.Close()
+
+		session, err := assistantInit("")
+
+		assert.Error(t, err, "Expected an error")
+		assert.Equal(t, assistantSession{}, session, "Expected an empty session on error")
+	})
+
 	t.Run("HTTP Error", func(t *testing.T) {
 		// Create a mock HTTP server that returns an error status code
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		session, err := assistantInit(server.URL)
+
+		assert.Error(t, err, "Expected an error")
+		assert.Equal(t, assistantSession{}, session, "Expected an empty session on error")
+	})
+
+	t.Run("Unmarshal Error", func(t *testing.T) {
+
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, `bad response`)
 		}))
 		defer server.Close()
 
