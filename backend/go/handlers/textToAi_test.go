@@ -168,4 +168,61 @@ func TestTextToAi(t *testing.T) {
 		}
 		// TODO: Write test for correct HTTP Error, not doable until Error library is made
 	})
+	t.Run("Failed to Chat", func(t *testing.T) {
+
+		mockResponse := `{"response": "MockedResponse"}`
+
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == "POST" {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			} else {
+				w.Write([]byte(mockResponse))
+			}
+		}))
+		defer mockServer.Close()
+
+		err := os.Setenv("LLM_URL", mockServer.URL)
+		if err != nil {
+			t.Fatalf("Error setting environment variable: %v", err)
+		}
+		defer os.Unsetenv("LLM_URL")
+
+		testMessage := "Test message"
+		_, err = textToAi(testMessage)
+
+		if err == nil {
+			t.Errorf("Expected an error, but got nil")
+		}
+	})
+
+	t.Run("Failed to Kill", func(t *testing.T) {
+
+		mockResponse := `{"response": "MockedResponse"}`
+
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == "DELETE" {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			} else {
+				w.Write([]byte(mockResponse))
+			}
+		}))
+		defer mockServer.Close()
+
+		err := os.Setenv("LLM_URL", mockServer.URL)
+		if err != nil {
+			t.Fatalf("Error setting environment variable: %v", err)
+		}
+		defer os.Unsetenv("LLM_URL")
+
+		testMessage := "Test message"
+		result, err := textToAi(testMessage)
+
+		if err != nil {
+			t.Errorf("Unexpected error: %v", err)
+		}
+
+		if result != "MockedResponse" {
+			t.Errorf("Expected 'MockedResponse', got '%s'", result)
+		}
+	})
 }
