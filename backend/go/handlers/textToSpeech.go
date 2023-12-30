@@ -11,7 +11,7 @@ import (
 
 func TextToSpeechHandler(w http.ResponseWriter, r *http.Request) {
 	openAIURL := os.Getenv("TTS_URL")
-	apiKey := os.Getenv("TTS_API_KEY")
+	apiKey := os.Getenv("OPENAI_API_KEY")
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -23,7 +23,7 @@ func TextToSpeechHandler(w http.ResponseWriter, r *http.Request) {
 	// Prepare the request body
 	requestBody := fmt.Sprintf(`{"model":"tts-1", "voice":"alloy", "input":"%s"}`, inputText)
 	// Create HTTP POST request to OpenAI TTS API
-	req, err := http.NewRequest("POST", openAIURL, bytes.NewBuffer([]byte(requestBody)))
+	req, err := http.NewRequest("GET", openAIURL, bytes.NewBuffer([]byte(requestBody)))
 	if err != nil {
 		log.Printf("HTTP error: %v", err)
 		http.Error(w, "Error creating request", http.StatusInternalServerError)
