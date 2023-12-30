@@ -5,11 +5,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-)
+	"os"
 
-const (
-	uberDuckAPIKey = "YOUR_UBERDUCK_API_KEY"
-	uberDuckAPIURL = "https://api.uberduck.ai/tts"
+	"github.com/joho/godotenv"
 )
 
 type TextToSpeechRequest struct {
@@ -17,6 +15,12 @@ type TextToSpeechRequest struct {
 }
 
 func TextToSpeechHandler(w http.ResponseWriter, r *http.Request) {
+
+	godotenv.Load(".env")
+
+	uberDuckAPIURL := os.Getenv("TTS_URL")
+	uberDuckAPIKey := os.Getenv("TTS_API_KEY")
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
