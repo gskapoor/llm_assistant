@@ -3,9 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
-	"log"
 	"net/http"
 )
 
@@ -66,10 +64,4 @@ func TextToSpeechHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Failed to write response", http.StatusInternalServerError)
 	}
-}
-
-func main() {
-	http.HandleFunc("/text-to-speech", TextToSpeechHandler)
-	fmt.Println("Server listening on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
 }
