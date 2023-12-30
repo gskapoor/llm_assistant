@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"os"
 
@@ -28,6 +29,7 @@ func TextToSpeechHandler(w http.ResponseWriter, r *http.Request) {
 	// Read the request body containing the text to be converted to speech
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		log.Printf("HTTP error: %v", err)
 		http.Error(w, "Failed to read request body", http.StatusBadRequest)
 	}
 
@@ -35,12 +37,14 @@ func TextToSpeechHandler(w http.ResponseWriter, r *http.Request) {
 	requestData := TextToSpeechRequest{Text: string(body)}
 	requestJSON, err := json.Marshal(requestData)
 	if err != nil {
+		log.Printf("HTTP error: %v", err)
 		http.Error(w, "Failed to create request JSON", http.StatusInternalServerError)
 	}
 
 	// Create an HTTP POST request to UberDuck's API
 	req, err := http.NewRequest(http.MethodPost, uberDuckAPIURL, bytes.NewBuffer(requestJSON))
 	if err != nil {
+		log.Printf("HTTP error: %v", err)
 		http.Error(w, "Failed to create HTTP request", http.StatusInternalServerError)
 	}
 	req.Header.Set("Authorization", "Bearer "+uberDuckAPIKey)
@@ -50,6 +54,7 @@ func TextToSpeechHandler(w http.ResponseWriter, r *http.Request) {
 	client := &http.Client{}
 	response, err := client.Do(req)
 	if err != nil {
+		log.Printf("HTTP error: %v", err)
 		http.Error(w, "Failed to make request to UberDuck's API", http.StatusInternalServerError)
 	}
 	defer response.Body.Close()
@@ -57,6 +62,7 @@ func TextToSpeechHandler(w http.ResponseWriter, r *http.Request) {
 	// Read the response from UberDuck's API
 	audioData, err := io.ReadAll(response.Body)
 	if err != nil {
+		log.Printf("HTTP error: %v", err)
 		http.Error(w, "Failed to read response from UberDuck's API", http.StatusInternalServerError)
 	}
 
@@ -66,6 +72,7 @@ func TextToSpeechHandler(w http.ResponseWriter, r *http.Request) {
 	// Write the audio data as the response
 	_, err = w.Write(audioData)
 	if err != nil {
+		log.Printf("HTTP error: %v", err)
 		http.Error(w, "Failed to write response", http.StatusInternalServerError)
 	}
 }
