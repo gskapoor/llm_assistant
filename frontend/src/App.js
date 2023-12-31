@@ -22,8 +22,10 @@ function App() {
       body: data
     };
     const response = await fetch('http://localhost:8080/voice', options);
-    const responseText = await response.text();
-    genMessage({author: "user", text: responseText, audio: url});
+    const encodedResponse = await response.json();
+
+    genMessage({author: "user", text: encodedResponse.transcribed_text, audio: url});
+    genMessage({author: "maya", text: encodedResponse.response, audio: null});
   };
 
   async function handleTextMessage(e) {
