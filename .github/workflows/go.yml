@@ -23,7 +23,7 @@ jobs:
         
     - name: Test
       run: |
-            cd /backend/go
+            cd backend/go
             ls
             pwd
             go test -v ./...
