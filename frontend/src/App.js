@@ -83,7 +83,7 @@ function App() {
 
   function toggleModal(mode) {
     if (mode === modal && modal != null) {
-      setModal(null)
+      setModal(null);
     }
     else {
       setModal(mode);
