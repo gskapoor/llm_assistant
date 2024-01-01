@@ -41,17 +41,13 @@ function App() {
     const formData = new FormData(form);
     const formJson = Object.fromEntries(formData.entries());
 
-    genMessage({author: "user", text: formJson.message, audio: null})
-    formRef.current.reset();
-
-    //Made logic statements to handle whitespace, checked message after trim to see if there is a message after function
-    //else throws typical response.
-
     if (formJson.message.trim().length === 0) {
       const responseJson = {message: "Oops! Looks like you forgot to write something!"};
       genMessage({author: "maya", text: responseJson.message, audio: null})
+      formRef.current.reset();
     }
-    else{
+    else {
+      genMessage({author: "user", text: formJson.message, audio: null});
       const options = {
         method: "POST",
         body: formJson.message
@@ -60,6 +56,7 @@ function App() {
       .then(response => response.text())
       .then(responseText => {
         genMessage({author: "maya", text: responseText, audio: null});
+        formRef.current.reset();
       })
     }
 
