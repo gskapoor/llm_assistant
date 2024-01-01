@@ -3,19 +3,21 @@ import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder';
 import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 import './App.css';
 
-const initialMessages = [{author: "maya", text: "Welcome to MAYA! How may I assist you today?"}];
-const API_URL = "http://localhost:8080"
+const initialMessages = [{author: "kei", text: "Welcome to KEI! How may I assist you today?"}];
+const API_URL = "http://localhost:8080";
 
 function App() {
   const [messages, setMessages] = useState(initialMessages);
+  const [thinking, setThinking] = useState(false);
   const [theme, setTheme] = useState("grayscale");
   const [modal, setModal] = useState(null);
-  const [ user, setUser ] = useState(null);
-  const [ profile, setProfile ] = useState(null);
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
   const recorderControls = useAudioRecorder();
   const formRef = useRef(null);
 
   async function handleAudioMessage(blob) {
+    setThinking(true);
     const url = URL.createObjectURL(blob);
     const audioFile = new File([blob], 'audio.mp3', { type: 'audio/mpeg' });
     const data = new FormData();
@@ -27,39 +29,45 @@ function App() {
       body: data
     };
     fetch(API_URL + '/voice', options)
-    .then(response => response.json())
-    .then(responseJson => {
-      genMessage({author: "user", text: responseJson.transcribed_text, audio: url});
-      genMessage({author: "maya", text: responseJson.response, audio: null});
+    .then((response) => {
+      return response.json();
     })
+    .then((responseJson) => {
+      genMessage({author: "user", text: responseJson.transcribed_text, audio: url});
+      genMessage({author: "kei", text: responseJson.response, audio: null});
+      setThinking(false);
+    });
   };
 
   async function handleTextMessage(e) {
     e.preventDefault();
-
     const form = e.target;
     const formData = new FormData(form);
     const formJson = Object.fromEntries(formData.entries());
+    formRef.current.reset();
 
     if (formJson.message.trim().length === 0) {
-      const responseJson = {message: "Oops! Looks like you forgot to write something!"};
-      genMessage({author: "maya", text: responseJson.message, audio: null})
-      formRef.current.reset();
+      alert("Oops! Looks like you forgot to write something!");
     }
     else {
+      setThinking(true);
       genMessage({author: "user", text: formJson.message, audio: null});
       const options = {
         method: "POST",
         body: formJson.message
       };
       fetch(API_URL + '/text', options)
-      .then(response => response.text())
-      .then(responseText => {
-        genMessage({author: "maya", text: responseText, audio: null});
-        formRef.current.reset();
+      .then((response) => {
+        return response.text();
       })
+      .then((responseText) => {
+        genMessage({author: "kei", text: responseText, audio: null});
+        setThinking(false);
+      })
+      .catch((err) => {
+        alert("Oops! Kei is currently having difficulty responding to your request.");
+      });
     }
-
   }
   
   function handleEnter(e) {
@@ -108,11 +116,14 @@ function App() {
           .catch(err => console.log(err));
         }
     }, [user]
-);
+  );
 
   function MessageList({messages}) {
     return (
       <div id="messageList">
+        {thinking &&
+          <div className="thinking">Kei is thinking...</div>
+        }
         {messages.map(message => (
           <div className={"message " + message.author}>
             <div className="message-box">
@@ -190,13 +201,17 @@ function App() {
       <div id="chat">
         <MessageList messages={messages} />
         <div id="messageInput">
-          <form id="messageInputArea" onSubmit={handleTextMessage} ref={formRef}>
+          <form id="messageInputArea" onSubmit={(e) => {
+            handleTextMessage(e);
+          }} ref={formRef}>
             <div className="inputLeft">
               <textarea name="message" type="text" id="messageType" placeholder="Enter message" onKeyDown={handleEnter}></textarea>
             </div>
             <div className="inputRight">
               <AudioRecorder 
-              onRecordingComplete={(blob) => handleAudioMessage(blob)}
+              onRecordingComplete={(blob) => {
+                handleAudioMessage(blob);
+              }}
               recorderControls={recorderControls}
               />
               <button type="submit" id="textSend">Send</button>
