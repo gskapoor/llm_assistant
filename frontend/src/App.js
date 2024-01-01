@@ -36,6 +36,9 @@ function App() {
       genMessage({author: "user", text: responseJson.transcribed_text, audio: url});
       genMessage({author: "kei", text: responseJson.response, audio: null});
       setThinking(false);
+    })
+    .catch((err) => {
+      alert("Oops! Kei is currently having difficulty responding to your request.");
     });
   };
 
