@@ -24,7 +24,7 @@ jobs:
       run: cd backend/go
       
     - name: Check directory
-      run: pwd
+      run: ls
 
     - name: Test
       run: go test -v ./...
