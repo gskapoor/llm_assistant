@@ -17,6 +17,7 @@ func main() {
 
 	r.HandleFunc("/text", midw.Chain(handlers.HandleTextInput, midw.LoggingStart(), midw.Logging()))
 	r.HandleFunc("/voice", midw.Chain(handlers.HandleVoiceInput, midw.LoggingStart(), midw.Logging()))
+	r.HandleFunc("/tts", midw.Chain(handlers.TextToSpeechHandler, midw.LoggingStart(), midw.Logging()))
 
 	fmt.Println("Server is running on :8080")
 
